@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation | EveEdge</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .docs-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 3rem;
+            margin-top: 2rem;
+            min-height: 100vh;
+            align-items: start;
+        }
+
+        .docs-sidebar {
+            position: sticky;
+            top: 2rem;
+            height: fit-content;
+            max-height: calc(100vh - 4rem);
+            z-index: 100;
+        }
+
+        .sidebar-inner {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 1.75rem;
+            border: 1px solid var(--glass-border);
+            overflow-y: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .sidebar-inner::-webkit-scrollbar {
+            display: none;
+        }
+
+        .docs-nav-group {
+            margin-bottom: 2rem;
+        }
+
+        .docs-nav-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-weight: 800;
+        }
+
+        .docs-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            margin-bottom: 0.35rem;
+            font-size: 0.925rem;
+            font-weight: 500;
+        }
+
+        .docs-link:hover {
+            color: var(--primary);
+            background: var(--primary-glow);
+            transform: translateX(5px);
+        }
+
+        .docs-link.active {
+            background: var(--primary-glow);
+            color: var(--primary);
+            border-left: 4px solid var(--primary);
+            border-radius: 0 12px 12px 0;
+            padding-left: calc(1rem - 4px);
+            font-weight: 700;
+        }
+
+        .docs-content {
+            background: var(--bg-card);
+            padding: 4rem;
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            max-width: 100%;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .doc-section {
+            margin-bottom: 5rem;
+            scroll-margin-top: 6rem;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .doc-section h1 {
+            font-size: 2.75rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            color: var(--text-main);
+            letter-spacing: -0.03em;
+        }
+
+        .doc-section h2 {
+            font-size: 1.85rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            margin-top: 3rem;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .doc-section h2 i {
+            color: var(--primary);
+        }
+
+        .doc-section h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+        }
+
+        .doc-section p {
+            line-height: 1.8;
+            color: var(--text-muted);
+            margin-bottom: 1.25rem;
+            font-size: 1.05rem;
+        }
+
+        .doc-section ul,
+        .doc-section ol {
+            margin: 1.5rem 0;
+            padding-left: 1.5rem;
+            color: var(--text-muted);
+        }
+
+        .doc-section li {
+            margin-bottom: 0.75rem;
+            line-height: 1.6;
+        }
+
+        .code-block {
+            background: #0f172a;
+            color: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 16px;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            overflow-x: auto;
+            margin: 2rem 0;
+            font-size: 0.95rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            line-height: 1.6;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: 'Terminal';
+            position: absolute;
+            top: 0;
+            right: 1.5rem;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0.5rem 0;
+        }
+
+        .highlight-note {
+            background: rgba(37, 99, 235, 0.05);
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            margin: 2.5rem 0;
+            border-radius: 0 16px 16px 0;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .highlight-note i {
+            color: var(--primary);
+            margin-top: 2px;
+        }
+
+        .api-card {
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .api-method {
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            margin-right: 0.75rem;
+        }
+
+        .method-get {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .method-post {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .method-put {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .method-delete {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .api-header {
+            padding: 1rem;
+            background: var(--bg-dark);
+            display: flex;
+            align-items: center;
+            font-family: monospace;
+            font-weight: 600;
+        }
+
+        @media (max-width: 1100px) {
+            .docs-container {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                margin-top: 1rem;
+            }
+
+            .docs-sidebar {
+                position: sticky;
+                top: 0;
+                z-index: 1001;
+                margin: -1rem -1rem 1.5rem -1rem;
+                background: var(--bg-card);
+                border-bottom: 1px solid var(--glass-border);
+            }
+
+            .sidebar-inner {
+                display: flex;
+                overflow-x: auto;
+                gap: 0.5rem;
+                padding: 0.75rem;
+                border: none;
+                border-radius: 0;
+                box-shadow: none;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .docs-nav-group {
+                margin-bottom: 0;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                flex-shrink: 0;
+            }
+
+            .docs-nav-title {
+                display: none;
+            }
+
+            .docs-link {
+                white-space: nowrap;
+                margin-bottom: 0;
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .docs-link.active {
+                border-left: none;
+                border-bottom: 3px solid var(--primary);
+                border-radius: 0;
+                padding-left: 1rem;
+            }
+
+            .docs-content {
+                padding: 1.5rem;
+                border-radius: 16px;
+                border: none;
+                box-shadow: none;
+            }
+
+            .doc-section h1 {
+                font-size: 1.75rem;
+            }
+
+            .doc-section h2 {
+                font-size: 1.4rem;
+                margin-top: 2rem;
+            }
+
+            .bookmark-ribbon {
+                display: none;
+            }
+        }
+
+        /* Specific mobile optimization */
+        @media (max-width: 768px) {
+            .docs-sidebar {
+                margin: 0 -1.5rem 1rem -1.5rem;
+                top: 0;
+            }
+
+            .sidebar-inner {
+                padding: 0.5rem 1rem;
+            }
+
+            .docs-content {
+                padding: 1.5rem;
+                margin: 0 -0.5rem;
+                border-radius: 20px;
+            }
+
+            .doc-section h1 {
+                font-size: 1.6rem;
+                margin-bottom: 1rem;
+            }
+
+            .doc-section h2 {
+                font-size: 1.3rem;
+                margin-top: 1.5rem;
+                margin-bottom: 1rem;
+            }
+
+            .doc-section p,
+            .doc-section li {
+                font-size: 0.95rem;
+            }
+
+            .code-block {
+                padding: 1.25rem 1rem;
+                font-size: 0.8rem;
+                margin: 1.25rem -0.5rem;
+                border-radius: 12px;
+            }
+
+            .highlight-note {
+                flex-direction: column;
+                padding: 1rem;
+                margin: 1.5rem 0;
+                border-radius: 12px;
+                border-left: none;
+                border-top: 4px solid var(--primary);
+            }
+
+            .api-card {
+                margin: 1rem -0.5rem;
+            }
+        }
+
+        /* Fix for sticky breakage */
+        .main-content {
+            overflow: visible !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header with Search -->
+            <div th:replace="~{fragments/header :: header}"></div>
+
+            <div class="docs-container">
+                <!-- Docs Navigation -->
+                <aside class="docs-sidebar">
+                    <div class="sidebar-inner">
+                        <div class="docs-nav-group" style="position: relative;">
+                            <div class="docs-nav-title"
+                                style="display: flex; align-items: center; gap: 8px; color: var(--primary);">
+                                <i class="fa-solid fa-bookmark" style="font-size: 1rem;"></i>
+                                <span style="font-weight: 800; letter-spacing: 0.5px;">FUNDAMENTALS</span>
+                            </div>
+                            <div style="position: absolute; left: -1.75rem; top: 0; bottom: 0; width: 4px; background: var(--primary); border-radius: 0 4px 4px 0;"
+                                class="bookmark-ribbon"></div>
+
+                            <a href="#intro" class="docs-link active"><i class="fa-solid fa-book-open"></i>
+                                Introduction</a>
+                            <a href="#installation" class="docs-link"><i class="fa-solid fa-download"></i>
+                                Installation</a>
+                            <a href="#quickstart" class="docs-link"><i class="fa-solid fa-bolt-lightning"></i> Quick
+                                Start</a>
+                        </div>
+                        <div class="docs-nav-group">
+                            <div class="docs-nav-title"><i class="fa-solid fa-microchip"
+                                    style="margin-right: 8px; font-size: 0.8rem;"></i> Technical Reference</div>
+                            <a href="#architecture" class="docs-link"><i class="fa-solid fa-layer-group"></i>
+                                Architecture</a>
+                            <a href="#api" class="docs-link"><i class="fa-solid fa-terminal"></i> API Reference</a>
+                            <a href="#security" class="docs-link"><i class="fa-solid fa-shield-halved"></i> Role
+                                Security</a>
+                        </div>
+                        <div class="docs-nav-group">
+                            <div class="docs-nav-title"><i class="fa-solid fa-circle-question"
+                                    style="margin-right: 8px; font-size: 0.8rem;"></i> Troubleshooting</div>
+                            <a href="#config" class="docs-link"><i class="fa-solid fa-gears"></i> Configuration</a>
+                            <a href="#support" class="docs-link"><i class="fa-solid fa-headset"></i> Get Support</a>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Docs Content -->
+                <article class="docs-content">
+                    <!-- Section: Introduction -->
+                    <div class="doc-section" id="intro">
+                        <h1>Introduction to EveEdge</h1>
+                        <p>Welcome to the official developer documentation for <strong>"EveEdge"</strong>.
+                            This platform is a
+                            next-generation event management ecosystem built on the robust <strong>"Spring
+                                Boot"</strong> framework,
+                            designed to handle high-concurrency event registration and management.</p>
+
+                        <div class="highlight-note">
+                            <i class="fa-solid fa-circle-info"></i>
+                            <span>This guide covers both the administrative console and the public-facing event portal.
+                                It is intended for system administrators and developers extending the platform.</span>
+                        </div>
+                    </div>
+
+                    <!-- Section: Installation -->
+                    <div class="doc-section" id="installation">
+                        <h2><i data-lucide="download"></i> Installation</h2>
+                        <p>EveEdge is distributed as a container-ready Spring Boot application. We recommend deployment
+                            on high-availability cloud infrastructure like AWS or DigitalOcean.</p>
+
+                        <h3>Prerequisites</h3>
+                        <ul class="info-list">
+                            <li><i class="fa-solid fa-circle-check" style="color: #10b981; margin-top: 4px;"></i> Java
+                                Runtime: JDK 17+ (Long Term Support)</li>
+                            <li><i class="fa-solid fa-circle-check" style="color: #10b981; margin-top: 4px;"></i>
+                                Database: MySQL 8.0 or PostgreSQL 14+</li>
+                            <li><i class="fa-solid fa-circle-check" style="color: #10b981; margin-top: 4px;"></i> Build
+                                Tool: Apache Maven 3.8.1+</li>
+                        </ul>
+
+                        <div class="code-block">
+                            # Clone the repository
+                            git clone https://github.com/your-org/event-management.git
+                            cd event-management
+
+                            # Configure environment variables (or update application.properties)
+                            export DB_URL=jdbc:mysql://localhost:3306/EveEdge
+                            export DB_USER=admin
+                            export DB_PASS=secret_password
+
+                            # Build and package
+                            mvn clean package -DskipTests
+
+                            # Run the executable jar
+                            java -jar target/EventManagement-2.0.0.jar
+                        </div>
+                    </div>
+
+                    <!-- Section: Quick Start -->
+                    <div class="doc-section" id="quickstart">
+                        <h2><i data-lucide="zap"></i> Quick Start Guide</h2>
+                        <p>Follow these steps to launch your first event in under 5 minutes:</p>
+                        <ol>
+                            <li><strong>Initial Setup:</strong> Access your instance at "http://localhost:8080/signup"
+                                and create the
+                                primary admin user.</li>
+                            <li><strong>Infrastructure:</strong> Navigate to "Manage Categories" and define your first
+                                vertical
+                                (e.g., "Tech Summits").</li>
+                            <li><strong>Publication:</strong> Click "Create Event", specify the lifecycle (start/end
+                                times), and
+                                upload a high-resolution banner.</li>
+                            <li><strong>Validation:</strong> Your event will instantly appear on the public dashboard
+                                for booking.
+                            </li>
+                        </ol>
+                    </div>
+
+                    <!-- Section: Architecture -->
+                    <div class="doc-section" id="architecture">
+                        <h2><i class="fa-solid fa-layer-group"></i> Technical Architecture</h2>
+                        <p>EveEdge utilizes a layered architecture for maximum scalability and maintainability.</p>
+
+                        <div class="highlight-note"
+                            style="background: rgba(245, 158, 11, 0.05); border-left-color: #f59e0b;">
+                            <i class="fa-solid fa-layer-group" style="color: #f59e0b;"></i>
+                            <span>The front-end uses <strong>"Vanilla JavaScript"</strong> and <strong>"Thymeleaf
+                                    Templates"</strong> to ensure
+                                minimal latency and high SEO performance.</span>
+                        </div>
+
+                        <ul>
+                            <li><strong>Web Layer:</strong> Spring MVC Controller handling template rendering and
+                                fragment injection.
+                            </li>
+                            <li><strong>API Layer:</strong> RESTful endpoints for dynamic data fetching (Categories,
+                                Events, Top
+                                Stats).</li>
+                            <li><strong>Service Layer:</strong> Business logic handling ticket QR generation, revenue
+                                calculations,
+                                and automated lifecycle state transitions.</li>
+                            <li><strong>Data Layer:</strong> Spring Data JPA with Hibernated for optimized ORM and
+                                connection
+                                pooling.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Section: API Reference -->
+                    <div class="doc-section" id="api">
+                        <h2><i class="fa-solid fa-terminal"></i> API Reference</h2>
+                        <p>EveEdge provides a robust internal API for dashboard interactions. All endpoints return
+                            standard JSON.</p>
+
+                        <div class="api-card">
+                            <div class="api-header">
+                                <span class="api-method method-get">GET</span> /api/events/top
+                            </div>
+                            <div style="padding: 1rem; font-size: 0.9rem; color: var(--text-muted);">
+                                Retrieves the top 10 events ranked by booking volume and revenue.
+                            </div>
+                        </div>
+
+                        <div class="api-card">
+                            <div class="api-header">
+                                <span class="api-method method-post">POST</span> /api/bookings/add
+                            </div>
+                            <div style="padding: 1rem; font-size: 0.9rem; color: var(--text-muted);">
+                                Initiates a ticket registration. Requires a valid Event ID and Customer payload.
+                            </div>
+                        </div>
+
+                        <div class="api-card">
+                            <div class="api-header">
+                                <span class="api-method method-delete">DELETE</span> /api/categories/delete/{id}
+                            </div>
+                            <div style="padding: 1rem; font-size: 0.9rem; color: var(--text-muted);">
+                                (Admin Only) Deletes a category and cascades deletion to all associated events.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section: Security -->
+                    <div class="doc-section" id="security">
+                        <h2><i class="fa-solid fa-shield-halved"></i> Role-Based Security</h2>
+                        <p>The system enforces strict "RBAC (Role-Based Access Control)" patterns at both the UI and
+                            API levels.</p>
+
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 2rem;">
+                            <thead>
+                                <tr style="background: var(--bg-dark); text-align: left;">
+                                    <th style="padding: 1rem; border: 1px solid var(--glass-border);">Capability</th>
+                                    <th style="padding: 1rem; border: 1px solid var(--glass-border);">Admin</th>
+                                    <th style="padding: 1rem; border: 1px solid var(--glass-border);">User</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="padding: 1rem; border: 1px solid var(--glass-border);">Browse Events</td>
+                                    <td style="padding: 1rem; border: 1px solid var(--glass-border); color: #10b981;">✔
+                                    </td>
+                                    <td style="padding: 1rem; border: 1px solid var(--glass-border); color: #10b981;">✔
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 1rem; border: 1px solid var(--glass-border);">Book Tickets</td>
+                                    <td style="padding: 1rem; border: 1px solid var(--glass-border); color: #10b981;">✔
+                                    </td>
+                                    <td style="padding: 1rem; border: 1px solid var(--glass-border); color: #10b981;">✔
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 1rem; border: 1px solid var(--glass-border);">Edit/Delete Events
+                                    </td>
+                                    <td style="padding: 1rem; border: 1px solid var(--glass-border); color: #10b981;">✔
+                                    </td>
+                                    <td style="padding: 1rem; border: 1px solid var(--glass-border); color: #ef4444;">✘
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 1rem; border: 1px solid var(--glass-border);">Confirm Payments
+                                    </td>
+                                    <td style="padding: 1rem; border: 1px solid var(--glass-border); color: #10b981;">✔
+                                    </td>
+                                    <td style="padding: 1rem; border: 1px solid var(--glass-border); color: #ef4444;">✘
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Section: Configuration -->
+                    <div class="doc-section" id="config">
+                        <h2><i class="fa-solid fa-gears"></i> System Configuration</h2>
+                        <p>EveEdge can be customized through environment variables or the "application.properties"
+                            file. Below are the key configuration keys:</p>
+
+                        <div class="code-block" style="background: #1e293b;">
+                            # Database Settings
+                            spring.datasource.url=jdbc:mysql://localhost:3306/EveEdge
+                            spring.datasource.username=root
+                            spring.datasource.password=your_password
+
+                            # Server Settings
+                            server.port=8080
+                            server.servlet.context-path=/
+
+                            # File Upload Limits
+                            spring.servlet.multipart.max-file-size=5MB
+                            spring.servlet.multipart.max-request-size=5MB
+
+                            # Thymeleaf Cache (Set to false during development)
+                            spring.thymeleaf.cache=true
+                        </div>
+
+                        <h3>Banner Optimization</h3>
+                        <p>To ensure high performance, the system automatically resizes uploaded banners. You can tune
+                            the default dimensions in "script.js" under the "handleEventSubmit" function.</p>
+                    </div>
+
+                    <!-- Section: Support -->
+                    <div class="doc-section" id="support">
+                        <h2><i class="fa-solid fa-headset"></i> Support & Troubleshooting</h2>
+                        <h3>Common Issues</h3>
+                        <ul class="info-list">
+                            <li><strong>Banners not appearing:</strong> Ensure Base64 strings are correctly formatted
+                                and satisfy the
+                                5MB max-payload limit.</li>
+                            <li><strong>Login Redirect Loops:</strong> Verify that <strong>"localStorage"</strong> is
+                                enabled in the browser and
+                                relevant roles are present in the Auth payload.</li>
+                        </ul>
+                        <p>Still need help? Visit our <a href="/support"
+                                style="color: var(--primary); text-decoration: none; font-weight: 700;">Support Desk</a>
+                            or open a ticket on GitHub.</p>
+                    </div>
+                </article>
+            </div>
+
+            <!-- Footer -->
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </main>
+    </div>
+
+    <script th:src="@{/js/script.js}"></script>
+    <script>
+        // Update: All icons now use Font Awesome. Lucide removed for documentation.
+        // lucide.createIcons();
+
+        // Smooth scroll handler with active state management
+        const links = document.querySelectorAll('.docs-link[href^="#"]');
+        const sections = document.querySelectorAll('.doc-section');
+
+        links.forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 100,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Highlight active link on scroll
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (window.pageYOffset >= sectionTop - 150) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            if (current) {
+                links.forEach(li => {
+                    li.classList.remove('active');
+                    if (li.getAttribute('href') === '#' + current) {
+                        li.classList.add('active');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

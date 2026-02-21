@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up | EveEdge</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .signup-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 2.5rem 3rem;
+            width: 100%;
+            max-width: 480px;
+            margin: 2rem;
+        }
+
+        .signup-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .signup-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .signup-logo i {
+            color: #667eea;
+        }
+
+        .signup-logo h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1a202c;
+            margin: 0;
+        }
+
+        .signup-subtitle {
+            color: #718096;
+            font-size: 0.95rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a0aec0;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem 0.875rem 3rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .signup-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+
+        .signup-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .signup-btn:active {
+            transform: translateY(0);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0;
+            color: #a0aec0;
+            font-size: 0.85rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #e2e8f0;
+        }
+
+        .divider span {
+            padding: 0 1rem;
+        }
+
+        .login-link {
+            text-align: center;
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .login-link a {
+            color: #667eea;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        .alert {
+            padding: 0.875rem 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .alert-error {
+            background: #fff5f5;
+            color: #c53030;
+            border: 1px solid #feb2b2;
+        }
+
+        .alert-success {
+            background: #f0fff4;
+            color: #2f855a;
+            border: 1px solid #9ae6b4;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="signup-container">
+        <div class="signup-header">
+            <div class="signup-logo">
+                <img th:src="@{/images/EveEdge-Logo.png}" alt="EveEdge"
+                    style="height: 50px; width: auto; object-fit: contain;">
+            </div>
+            <p class="signup-subtitle">Create your account to get started.</p>
+        </div>
+
+        <div id="alert" class="alert"></div>
+
+        <form id="signupForm">
+            <div class="form-group">
+                <label for="username" style="display: flex; align-items: center; gap: 1px;"><i data-lucide="user"
+                        size="18"></i>Username</label>
+                <div class="input-wrapper">
+                    <input type="text" id="username" name="username" class="form-input" placeholder="Choose a username"
+                        required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email" style="display: flex; align-items: center; gap: 1px;"><i data-lucide=" mail"
+                        size="18"></i>Email</label>
+                <div class="input-wrapper">
+                    <input type="email" id="email" name="email" class="form-input" placeholder="Enter your email"
+                        required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password" style="display: flex; align-items: center; gap: 1px;"><i data-lucide=" lock"
+                        size="18"></i>Password</label>
+                <div class="input-wrapper">
+                    <input type="password" id="password" name="password" class="form-input"
+                        placeholder="Create a password" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="mobileNumber" style="display: flex; align-items: center; gap: 1px;"><i data-lucide=" phone"
+                        size="18"></i>Mobile Number</label>
+                <div class="input-wrapper">
+                    <input type="tel" id="mobileNumber" name="mobileNumber" class="form-input"
+                        placeholder="Enter your mobile number" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="organization" style="display: flex; align-items: center; gap: 1px;"><i data-lucide="
+                    building" size="18"></i>Organization</label>
+                <div class="input-wrapper">
+                    <input type="text" id="organization" name="organization" class="form-input"
+                        placeholder="Enter your college/org name" required>
+                </div>
+            </div>
+
+            <button type="submit" class="signup-btn">Sign Up</button>
+        </form>
+
+        <div class="divider">
+            <span>OR</span>
+        </div>
+
+        <div class="login-link">
+            Already have an account? <a href="/login">Login</a>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+
+        const signupForm = document.getElementById('signupForm');
+        const alertBox = document.getElementById('alert');
+
+        function showAlert(message, type) {
+            alertBox.textContent = message;
+            alertBox.className = `alert alert-${type}`;
+            alertBox.style.display = 'block';
+        }
+
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = signupForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerText;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i data-lucide="loader-2" class="animate-spin" size="18" style="vertical-align: middle; margin-right: 5px;"></i> Processing...';
+            if (window.lucide) lucide.createIcons();
+
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('email').value;
+            const mobileNumber = document.getElementById('mobileNumber').value;
+            const organization = document.getElementById('organization').value;
+
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/api/auth/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, email, password, mobileNumber, organization })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert('Account created successfully! Redirecting to login...', 'success');
+
+                    // Redirect to login page
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 2000);
+                } else {
+                    showAlert(data.message || 'Signup failed. Please try again.', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = originalText;
+                }
+            } catch (error) {
+                console.error('Signup error:', error);
+                showAlert('An error occurred. Please try again.', 'error');
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalText;
+            }
+        });
+    </script>
+</body>
+
+</html>

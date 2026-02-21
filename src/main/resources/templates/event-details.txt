@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event | Details & Tickets</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body class="light-theme">
+    <div class="app-container">
+        <!-- Mobile Menu Toggle Button -->
+
+
+        <!-- Sidebar -->
+        <!-- Sidebar Fragment -->
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+        <main class="main-content">
+            <!-- Header with Search -->
+            <div th:replace="~{fragments/header :: header}"></div>
+
+            <div class="details-container">
+                <!-- Hero Section -->
+                <div class="details-hero">
+                    <img id="event-detail-img"
+                        src="https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&q=80&w=1200"
+                        alt="Event Banner">
+                    <div style="position: absolute; top: 2rem; left: 2rem; display: flex; gap: 1rem;">
+                        <div id="event-detail-status" class="event-status-badge"
+                            style="position: relative; top: 0; left: 0; padding: 0.6rem 1.2rem; font-size: 0.9rem; background: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                            Upcoming</div>
+                        <div id="event-detail-lifecycle" class="event-status-badge"
+                            style="position: relative; top: 0; left: 0; padding: 0.6rem 1.2rem; font-size: 0.9rem; background: rgba(255,255,255,0.9); color: var(--text-main); border: 1px solid var(--glass-border); box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                            Scheduled</div>
+                    </div>
+                </div>
+
+                <div id="status-reason-container"
+                    style="display: none; background: #fff7ed; border-left: 4px solid #f59e0b; padding: 1rem; margin-bottom: 2rem; border-radius: 4px; align-items: flex-start; gap: 0.75rem;">
+                    <i data-lucide="info" style="color: #f59e0b; margin-top: 0.2rem; flex-shrink: 0;" size="20"></i>
+                    <div>
+                        <h4 style="color: #9a3412; margin: 0 0 0.25rem 0; font-size: 0.95rem;">Status Update</h4>
+                        <p id="status-reason-text"
+                            style="color: #9a3412; margin: 0; font-size: 0.9rem; line-height: 1.5;"></p>
+                    </div>
+                </div>
+
+                <div class="details-grid">
+                    <div class="details-content">
+                        <div id="event-detail-cat" class="event-category-tag"
+                            style="font-size: 0.9rem; padding: 0.5rem 1rem;">Category</div>
+                        <h1 id="event-detail-name">Loading Event...</h1>
+
+                        <div class="details-meta"
+                            style="display: flex; flex-wrap: wrap; gap: 1rem; margin: 1.5rem 0 2.5rem;">
+                            <div class="details-meta-item">
+                                <i data-lucide="calendar"></i>
+                                <span id="event-detail-date">TBD</span>
+                            </div>
+                            <div class="details-meta-item">
+                                <i data-lucide="map-pin"></i>
+                                <span id="event-detail-loc">TBD</span>
+                            </div>
+                            <div class="details-meta-item">
+                                <i data-lucide="users"></i>
+                                <span id="event-detail-seats">0 Seats Available</span>
+                            </div>
+                        </div>
+
+                        <div class="details-description">
+                            <h3
+                                style="font-family: 'Outfit', sans-serif; font-size: 1.5rem; margin-bottom: 1rem; color: var(--text-main);">
+                                About this event</h3>
+                            <p id="event-detail-desc">Loading description...</p>
+                            <div
+                                style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--glass-border);">
+                                <h4 style="font-weight: 700; margin-bottom: 1rem;">Important Information</h4>
+                                <ul
+                                    style="list-style: none; color: var(--text-muted); font-size: 1rem; line-height: 1.6;">
+                                    <li style="margin-bottom: 0.5rem;">&bull; Doors open 30 minutes before the event
+                                        starts.
+                                    </li>
+                                    <li style="margin-bottom: 0.5rem;">&bull; Please bring a valid ID and your digital
+                                        ticket.</li>
+                                    <li>&bull; Professional photography is allowed only with prior permission.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="details-sidebar">
+                        <div class="booking-card">
+                            <div class="price-tag" id="event-detail-price">?0.00</div>
+                            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem;">Secure your
+                                spot now before tickets sell out!</p>
+
+                            <ul class="booking-features">
+                                <li><i data-lucide="check-circle"></i> Instant Ticket Delivery</li>
+                                <li><i data-lucide="check-circle"></i> Mobile Entry</li>
+                                <li><i data-lucide="check-circle"></i> 100% Secure Payment</li>
+                                <li><i data-lucide="check-circle"></i> 24/7 Support</li>
+                            </ul>
+
+                            <button class="submit-btn" id="buy-ticket-btn"
+                                style="height: 60px; font-size: 1.1rem;">Select Ticket</button>
+
+                            <div style="margin-top: 1.5rem; text-align: center;">
+                                <span
+                                    style="font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                    <i data-lucide="shield-check" size="16" style="color: #10b981;"></i>
+                                    Buyer Protection Guaranteed
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Footer Fragment -->
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </main>
+    </div>
+
+    <!-- Quick Registration Modal -->
+    <div class="modal-overlay" id="register-modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title">Quick Registration</h2>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;" id="register-event-name">
+                        Event Name</p>
+                </div>
+                <button class="close-modal"
+                    onclick="document.getElementById('register-modal').classList.remove('active')">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <form id="quick-register-form">
+                <input type="hidden" id="register-event-id">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="reg-cust-name" placeholder="Jack Reacher" required>
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="reg-cust-email" placeholder="jack@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Mobile Number</label>
+                    <input type="tel" id="reg-cust-mobile" placeholder="+91 9876543210" required>
+                </div>
+                <div class="form-group">
+                    <label>Organization</label>
+                    <input type="text" id="reg-cust-org" placeholder="Company/College Name" required>
+                </div>
+                <div class="form-group">
+                    <label>Attendee Type</label>
+                    <select id="reg-cust-type" required
+                        style="width: 100%; padding: 0.75rem 1rem; border-radius: 12px; border: 1px solid var(--glass-border); background: white; color: var(--text-main); font-weight: 500; outline: none;">
+                        <option value="Internal">Internal (Student/Faculty)</option>
+                        <option value="External" selected>External (Guest)</option>
+                    </select>
+                </div>
+                <div
+                    style="margin-top: 1.5rem; padding: 1rem; background: #f8fafc; border-radius: 12px; display: flex; align-items: center; gap: 10px;">
+                    <i data-lucide="info" size="18" style="color: var(--primary);"></i>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">This event is free. No payment
+                        details are required.</p>
+                </div>
+                <button type="submit" class="submit-btn" style="margin-top: 1.5rem;">Confirm Registration</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <script>
+        let currentEvent = null;
+
+        function showToast(title, message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            let icon = 'check-circle';
+            if (type === 'error') icon = 'alert-circle';
+            if (type === 'info') icon = 'info';
+
+            toast.innerHTML = `
+                <div class="toast-icon"><i data-lucide="${icon}"></i></div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+            `;
+            container.appendChild(toast);
+            if (window.lucide) window.lucide.createIcons();
+            setTimeout(() => toast.classList.add('active'), 10);
+            setTimeout(() => {
+                toast.classList.remove('active');
+                setTimeout(() => toast.remove(), 400);
+            }, 4000);
+        }
+
+        async function handleQuickRegister(e) {
+            e.preventDefault();
+            const eventId = document.getElementById('register-event-id').value;
+            const name = document.getElementById('reg-cust-name').value;
+            const email = document.getElementById('reg-cust-email').value;
+            const mobile = document.getElementById('reg-cust-mobile').value;
+            const org = document.getElementById('reg-cust-org').value;
+            const utype = document.getElementById('reg-cust-type').value;
+
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Registering...";
+
+            const bookingData = {
+                event: { eventId: parseInt(eventId) },
+                customerName: name,
+                customerEmail: email,
+                mobileNumber: mobile,
+                organization: org,
+                userType: utype,
+                quantity: 1,
+                totalAmount: 0.0,
+                status: "Confirmed",
+                paymentMode: "Free Registration"
+            };
+
+            try {
+                const res = await fetchWithAuth('/api/bookings/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(bookingData)
+                });
+
+                if (res.ok) {
+                    showToast("Registration Successful", "You have successfully registered for this event. Your pass is ready!", "success");
+                    document.getElementById('register-modal').classList.remove('active');
+
+                    // Redirect to tickets page
+                    setTimeout(() => {
+                        window.location.href = '/tickets';
+                    }, 1500);
+                } else {
+                    const err = await res.text();
+                    showToast("Action Failed", "Registration failed: " + (err || "Check your network"), "error");
+                }
+            } catch (err) {
+                console.error("Reg error:", err);
+                showToast("Action Failed", "A network error occurred. Please try again.", "error");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Confirm Registration";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventId = urlParams.get('id');
+
+            if (eventId) {
+                fetch(`/api/events/get/${eventId}`)
+                    .then(res => res.json())
+                    .then(event => {
+                        if (event) {
+                            currentEvent = event;
+                            document.getElementById('event-detail-name').innerText = event.title;
+                            let dateDisplay = event.eventDate || 'TBD';
+                            if (event.startTime) {
+                                const formatTime = (t) => {
+                                    const [h, m] = t.split(':');
+                                    let hour = parseInt(h);
+                                    const ampm = hour >= 12 ? 'PM' : 'AM';
+                                    hour = hour % 12 || 12;
+                                    return `${hour}:${m} ${ampm}`;
+                                };
+                                dateDisplay += ` • ${formatTime(event.startTime)}`;
+                                if (event.endTime) {
+                                    dateDisplay += ` - ${formatTime(event.endTime)}`;
+                                }
+                            }
+                            document.getElementById('event-detail-date').innerText = dateDisplay;
+                            document.getElementById('event-detail-loc').innerText = event.location;
+                            document.getElementById('event-detail-desc').innerText = event.description || 'No description available.';
+                            document.getElementById('event-detail-price').innerText = event.paidEvent ? `?${event.price}` : 'Free';
+                            document.getElementById('event-detail-seats').innerText = `${event.availableSeats} / ${event.maxSeats} Seats Available`;
+                            document.getElementById('event-detail-cat').innerText = event.category ? event.category.catName : 'General';
+
+                            const statusBadge = document.getElementById('event-detail-status');
+                            const lifecycleBadge = document.getElementById('event-detail-lifecycle');
+                            const buyBtn = document.getElementById('buy-ticket-btn');
+
+                            // Set Lifecycle status
+                            lifecycleBadge.innerText = event.status;
+                            const reasonContainer = document.getElementById('status-reason-container');
+                            const reasonText = document.getElementById('status-reason-text');
+
+                            if (event.statusReason && event.statusReason.trim().length > 0) {
+                                if (reasonContainer) {
+                                    reasonContainer.style.display = 'flex';
+                                    reasonText.innerText = event.statusReason;
+                                }
+                            }
+
+                            if (event.status === 'Cancelled') {
+                                lifecycleBadge.style.background = '#fef2f2';
+                                lifecycleBadge.style.color = '#ef4444';
+                                lifecycleBadge.style.borderColor = '#fee2e2';
+                            } else if (event.status === 'Rescheduled') {
+                                lifecycleBadge.style.background = '#fff7ed';
+                                lifecycleBadge.style.color = '#f59e0b';
+                                lifecycleBadge.style.borderColor = '#ffedd5';
+                            } else {
+                                lifecycleBadge.style.background = '#f0f9ff';
+                                lifecycleBadge.style.color = '#0ea5e9';
+                                lifecycleBadge.style.borderColor = '#e0f2fe';
+                            }
+
+                            // Set Temporal Status (Display Status)
+                            if (event.displayStatus === 'Cancelled') {
+                                statusBadge.style.display = 'none'; // Don't show live/passed/upcoming when cancelled
+                                buyBtn.innerText = "Cancelled";
+                                buyBtn.disabled = true;
+                                buyBtn.style.opacity = "0.5";
+                                buyBtn.style.cursor = "not-allowed";
+                            } else {
+                                statusBadge.style.display = 'block';
+                                statusBadge.innerText = event.displayStatus;
+
+                                if (event.displayStatus === 'Live') {
+                                    statusBadge.style.background = '#10b981';
+                                } else if (event.displayStatus === 'Passed') {
+                                    statusBadge.style.background = '#ef4444';
+                                    buyBtn.innerText = "Event Ended";
+                                    buyBtn.disabled = true;
+                                    buyBtn.style.opacity = "0.5";
+                                    buyBtn.style.cursor = "not-allowed";
+                                } else {
+                                    statusBadge.style.background = 'var(--primary)';
+                                }
+
+                                if (event.displayStatus !== 'Passed') {
+                                    if (event.availableSeats <= 0) {
+                                        statusBadge.innerText = "Sold Out";
+                                        statusBadge.style.background = "#64748b";
+                                        buyBtn.innerText = "Sold Out";
+                                        buyBtn.disabled = true;
+                                        buyBtn.style.opacity = "0.5";
+                                        buyBtn.style.cursor = "not-allowed";
+                                    } else {
+                                        buyBtn.innerText = event.paidEvent ? "Select Ticket" : "Register Now";
+                                    }
+                                }
+                            }
+
+                            if (event.banner_image) {
+                                document.getElementById('event-detail-img').src = `data:image/jpeg;base64,${event.banner_image}`;
+                            }
+
+                            // Sync with global store for cart operations
+                            if (typeof loadedEvents !== 'undefined') {
+                                loadedEvents[event.eventId] = event;
+                            }
+                        }
+                    })
+                    .catch(err => console.error("Error loading event details:", err));
+            }
+
+            document.getElementById('buy-ticket-btn').addEventListener('click', () => {
+                if (currentEvent) {
+                    // Use global addToCart from script.js
+                    if (typeof addToCart === 'function') {
+                        addToCart(currentEvent.eventId);
+                    } else {
+                        console.error("Global addToCart not found");
+                    }
+                }
+            });
+
+            const quickRegForm = document.getElementById('quick-register-form');
+            if (quickRegForm) {
+                quickRegForm.addEventListener('submit', handleQuickRegister);
+            }
+
+            // Toggle Logic for Modal
+            const btnInt = document.getElementById('btn-utype-int');
+            const btnExt = document.getElementById('btn-utype-ext');
+            const typeInput = document.getElementById('reg-cust-type');
+
+            if (btnInt && btnExt) {
+                btnInt.onclick = () => {
+                    btnInt.style.background = "var(--primary)"; btnInt.style.color = "white";
+                    btnExt.style.background = "transparent"; btnExt.style.color = "var(--text-muted)";
+                    typeInput.value = "Internal";
+                };
+                btnExt.onclick = () => {
+                    btnExt.style.background = "var(--primary)"; btnExt.style.color = "white";
+                    btnInt.style.background = "transparent"; btnInt.style.color = "var(--text-muted)";
+                    typeInput.value = "External";
+                };
+            }
+
+
+        });
+    </script>
+    <script th:src="@{/js/script.js}"></script>
+</body>
+
+</html>

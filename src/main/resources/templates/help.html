@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help Center | EveEdge</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .help-hero {
+            text-align: center;
+            padding: 4rem 1rem;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(30, 64, 175, 0.02) 100%);
+            border-radius: 24px;
+            margin-bottom: 2.5rem;
+            border: 1px solid var(--glass-border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .help-hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.03) 0%, transparent 70%);
+            z-index: 0;
+        }
+
+        .help-hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .help-hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, var(--primary), #1d4ed8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        .help-search {
+            max-width: 600px;
+            margin: 2rem auto 0;
+            position: relative;
+        }
+
+        .help-search input {
+            height: 56px;
+            padding-left: 3.5rem;
+            font-size: 1rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+        }
+
+        .help-search input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .help-search .search-icon {
+            left: 1.25rem;
+            opacity: 0.5;
+            width: 20px;
+            height: 20px;
+            top: 46%;
+        }
+
+        .topic-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3.5rem;
+        }
+
+        .topic-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 1.75rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .topic-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+        }
+
+        .topic-header {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .topic-icon {
+            width: 52px;
+            height: 52px;
+            background: var(--primary-glow);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .topic-header h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0;
+        }
+
+        .topic-body {
+            color: var(--text-muted);
+            font-size: 0.925rem;
+            line-height: 1.6;
+        }
+
+        .topic-more-info {
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            border-top: 1px solid transparent;
+            margin-top: 0;
+        }
+
+        .topic-card.expanded {
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.08);
+        }
+
+        .topic-card.expanded .topic-more-info {
+            max-height: 500px;
+            opacity: 1;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top-color: var(--glass-border);
+        }
+
+        .topic-card .expand-trigger {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            color: var(--text-muted);
+            transition: transform 0.3s ease;
+        }
+
+        .topic-card.expanded .expand-trigger {
+            transform: rotate(180deg);
+            color: var(--primary);
+        }
+
+        .info-list {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .info-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .info-list li i {
+            color: var(--primary);
+            margin-top: 3px;
+            flex-shrink: 0;
+        }
+
+        .faq-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .faq-item {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item:hover {
+            border-color: var(--primary);
+        }
+
+        .faq-question {
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--text-main);
+            font-size: 1.05rem;
+            user-select: none;
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(30, 41, 59, 0.01);
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .faq-item.active {
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 400px;
+            padding: 0 1.5rem 1.75rem;
+        }
+
+        .faq-item.active .chevron-icon {
+            transform: rotate(180deg);
+            color: var(--primary);
+        }
+
+        .category-badge {
+            background: #f1f5f9;
+            color: #64748b;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+        }
+
+        @media (max-width: 768px) {
+            .help-hero {
+                padding: 2.5rem 1rem;
+                border-radius: 16px;
+                margin-bottom: 2rem;
+            }
+
+            .help-hero h1 {
+                font-size: 2rem;
+            }
+
+            .section-title {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                padding: 0 1rem;
+                margin-bottom: 2rem;
+            }
+
+            .section-title span {
+                font-size: 1.4rem;
+                font-weight: 800;
+            }
+
+            .section-title p {
+                font-size: 0.85rem !important;
+                margin-top: 0.5rem !important;
+            }
+
+            .topic-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .topic-card {
+                padding: 1.25rem;
+            }
+
+            .help-search .search-icon {
+                margin-top: 6px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div th:replace="~{fragments/header :: header}"></div>
+
+            <section class="help-hero">
+                <div class="help-hero-content">
+                    <h1>How can we help?</h1>
+                    <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto;">
+                        Unlock the full potential of EveEdge. Search our comprehensive guides or explore specialized
+                        topics below.
+                    </p>
+                    <div class="help-search">
+                        <div class="search-container">
+                            <i data-lucide="search" class="search-icon"></i>
+                            <input type="text" id="help-search-input"
+                                placeholder="Search for features, guides, or troubleshooting..."
+                                style="background: white;">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="section-title">
+                <span>Knowledge Directory</span>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem;">Click a card to expand
+                    detailed documentation</p>
+            </div>
+
+            <div class="topic-grid">
+                <!-- Topic 1: Event Lifecycle -->
+                <div class="topic-card">
+                    <i data-lucide="chevron-down" class="expand-trigger" size="20"></i>
+                    <div class="topic-header">
+                        <div class="topic-icon">
+                            <i data-lucide="calendar"></i>
+                        </div>
+                        <h3>Event Management</h3>
+                    </div>
+                    <div class="topic-body">
+                        Comprehensive guide on orchestrating events from draft to completion, including banner
+                        optimization.
+                    </div>
+                    <div class="topic-more-info">
+                        <ul class="info-list">
+                            <li><i class="fa-solid fa-circle-check"></i> <strong>Creating Events:</strong> Use the
+                                plus button to launch the creator. High-res banners (1920x1080) are recommended.</li>
+                            <li><i class="fa-solid fa-circle-check"></i> <strong>Live Status:</strong> Events
+                                automatically become "Live" when current time is between start and end.</li>
+                            <li><i class="fa-solid fa-circle-check"></i> <strong>Passed State:</strong> After the
+                                end time, events shift to "Passed" and bookings are disabled.</li>
+                            <li><i class="fa-solid fa-circle-check"></i> <strong>Cancellations:</strong> Admins
+                                can cancel events, which flags them visually and halts registration.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Topic 2: Smart Categories -->
+                <div class="topic-card">
+                    <i data-lucide="chevron-down" class="expand-trigger" size="20"></i>
+                    <div class="topic-header">
+                        <div class="topic-icon" style="color: #8b5cf6; background: rgba(139, 92, 246, 0.1);">
+                            <i data-lucide="layers"></i>
+                        </div>
+                        <h3>Category System</h3>
+                    </div>
+                    <div class="topic-body">
+                        Organize your ecosystem using dynamic categories with custom colors, icons, and automated
+                        grouping.
+                    </div>
+                    <div class="topic-more-info">
+                        <ul class="info-list">
+                            <li><i class="fa-solid fa-circle-check"></i> <strong>Visual Branding:</strong> Each
+                                category can have a unique color used for badges and UI accents.</li>
+                            <li><i class="fa-solid fa-circle-check"></i> <strong>Custom Icons:</strong> Upload
+                                64x64 PNG icons to represent categories on the dashboard.</li>
+                            <li><i class="fa-solid fa-circle-check"></i> <strong>Grouping:</strong> Clicking a
+                                category on the dashboard filters all related events in a clean popup view.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Topic 3: Global Search -->
+                <div class="topic-card">
+                    <i data-lucide="chevron-down" class="expand-trigger" size="20"></i>
+                    <div class="topic-header">
+                        <div class="topic-icon" style="color: #f59e0b; background: rgba(245, 158, 11, 0.1);">
+                            <i data-lucide="search"></i>
+                        </div>
+                        <h3>Omni Search</h3>
+                    </div>
+                    <div class="topic-body">
+                        Find anything instantly. Our global search indexes titles, locations, and category metadata.
+                    </div>
+                    <div class="topic-more-info">
+                        <ul class="info-list">
+                            <li><i class="fa-solid fa-circle-check"></i> <strong>Real-time Results:</strong>
+                                Results appear in a smart dropdown as you type in the header.</li>
+                            <li><i class="fa-solid fa-circle-check"></i> <strong>Smart Indexing:</strong> We
+                                prioritize live events over passed ones in search rankings.</li>
+                            <li><i class="fa-solid fa-circle-check"></i> <strong>Direct Navigation:</strong>
+                                Clicking a search result takes you straight to the event details or management page.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Topic 4: Payments & Tickets -->
+                <div class="topic-card">
+                    <i data-lucide="chevron-down" class="expand-trigger" size="20"></i>
+                    <div class="topic-header">
+                        <div class="topic-icon" style="color: #10b981; background: rgba(16, 185, 129, 0.1);">
+                            <i data-lucide="ticket"></i>
+                        </div>
+                        <h3>Registration Flow</h3>
+                    </div>
+                    <div class="topic-body">
+                        Understand how users book tickets, QR code generation, and the cash payment workflow.
+                    </div>
+                    <div class="topic-more-info">
+                        <ul class="info-list">
+                            <li><i class="fa-solid fa-circle-check"></i> <strong>Booking:</strong> External users
+                                can register via the "Book Now" flow on any live event.</li>
+                            <li><i class="fa-solid fa-circle-check"></i> <strong>QR Tickets:</strong> Upon
+                                successful booking, a unique QR code is generated for verification.</li>
+                            <li><i class="fa-solid fa-circle-check"></i> <strong>Cash Payments:</strong> For paid
+                                events, admins must confirm "Pending Payments" once cash is received offline.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Topic 5: Admin Analytics -->
+                <div class="topic-card admin-only">
+                    <i data-lucide="chevron-down" class="expand-trigger" size="20"></i>
+                    <div class="topic-header">
+                        <div class="topic-icon" style="color: #ef4444; background: rgba(239, 68, 68, 0.1);">
+                            <i data-lucide="bar-chart-3"></i>
+                        </div>
+                        <h3>Revenue & Stats</h3>
+                    </div>
+                    <div class="topic-body">
+                        Analyze performance through dashboard metrics, revenue tracking, and booking volume.
+                    </div>
+                    <div class="topic-more-info">
+                        <ul class="info-list">
+                            <li><i class="fa-solid fa-circle-check"></i> <strong>Dashboard Stats:</strong>
+                                Real-time counts of categories, events, and confirmed bookings.</li>
+                            <li><i class="fa-solid fa-circle-check"></i> <strong>Revenue View:</strong> Deep-dive
+                                into specific events to see total earnings and attendee breakdowns.</li>
+                            <li><i class="fa-solid fa-circle-check"></i> <strong>Pending Actions:</strong>
+                                Immediate visibility of payments requiring manual confirmation.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Topic 6: System Settings -->
+                <div class="topic-card">
+                    <i data-lucide="chevron-down" class="expand-trigger" size="20"></i>
+                    <div class="topic-header">
+                        <div class="topic-icon" style="color: #64748b; background: rgba(100, 116, 139, 0.1);">
+                            <i data-lucide="shield-check"></i>
+                        </div>
+                        <h3>Security & Roles</h3>
+                    </div>
+                    <div class="topic-body">
+                        Learn about Permission-Based UI and secure session management within EveEdge.
+                    </div>
+                    <div class="topic-more-info">
+                        <ul class="info-list">
+                            <li><i class="fa-solid fa-circle-check"></i> <strong>Role Isolation:</strong> Admin
+                                features (Delete, Update, Stats) are hidden from regular users.</li>
+                            <li><i class="fa-solid fa-circle-check"></i> <strong>Session Security:</strong>
+                                JWT-based authentication ensures your actions are securely validated.</li>
+                            <li><i class="fa-solid fa-circle-check"></i> <strong>Identity:</strong> Quickly switch
+                                between internal and external perspectives for testing.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-title">
+                <span>Frequently Asked Questions</span>
+            </div>
+
+            <div class="faq-container">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How do I create a new event?</span>
+                        <i data-lucide="chevron-down" class="chevron-icon" size="18"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Admins can click the <strong>"Create Event"</strong> button on the dashboard or use the
+                            sidebar link. You'll need to provide a title, category, location, and date. For paid events,
+                            simply check the "Paid" box and set a price in Rupees.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>What's the difference between "Status" and "Lifecycle"?</span>
+                        <i data-lucide="chevron-down" class="chevron-icon" size="18"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p><strong>Status</strong> (e.g., Scheduled, Cancelled) is a manual state set by admins.
+                            <strong>Lifecycle</strong> (e.g., Upcoming, Live, Passed) is an automated state determined
+                            by the current system time relative to the event's start/end times.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Can I edit a category color later?</span>
+                        <i data-lucide="chevron-down" class="chevron-icon" size="18"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Absolutely. Navigate to <strong>"Manage Categories"</strong>, select the category you wish to
+                            modify, and use the color picker. All badges and icons associated with that category will
+                            update instantly across the entire platform.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How do I confirm a cash payment?</span>
+                        <i data-lucide="chevron-down" class="chevron-icon" size="18"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Go to the <strong>"Pending Payments"</strong> page. Find the relevant customer booking,
+                            verify the cash amount received, and click the green checkmark icon. This will finalize the
+                            booking and send a confirmation to the user.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Is there a limit to how many images I can upload?</span>
+                        <i data-lucide="chevron-down" class="chevron-icon" size="18"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>While there is no hard limit on quantity, each banner is optimized to a maximum of 1920x1080
+                            resolution to ensure fast page loads for all users while maintaining crystal clear visual
+                            quality.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </main>
+    </div>
+
+    <script th:src="@{/js/script.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // FAQ Toggle
+            document.querySelectorAll('.faq-question').forEach(item => {
+                item.addEventListener('click', () => {
+                    const parent = item.parentElement;
+                    const isActive = parent.classList.contains('active');
+
+                    // Close other FAQs
+                    document.querySelectorAll('.faq-item').forEach(other => {
+                        if (other !== parent) other.classList.remove('active');
+                    });
+
+                    parent.classList.toggle('active');
+                });
+            });
+
+            // Topic Card Expansion
+            document.querySelectorAll('.topic-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    // Don't toggle if clicking on a link or button if we add one later
+                    const isExpanded = card.classList.contains('expanded');
+
+                    // Close other cards for a cleaner accordion feel
+                    document.querySelectorAll('.topic-card').forEach(other => {
+                        if (other !== card) other.classList.remove('expanded');
+                    });
+
+                    card.classList.toggle('expanded');
+                });
+            });
+
+            // Help Search
+            const searchInput = document.getElementById('help-search-input');
+            const topicCards = document.querySelectorAll('.topic-card');
+            const faqItems = document.querySelectorAll('.faq-item');
+
+            searchInput.addEventListener('input', (e) => {
+                const term = e.target.value.toLowerCase().trim();
+
+                topicCards.forEach(card => {
+                    const text = card.innerText.toLowerCase();
+                    card.style.display = text.includes(term) ? 'flex' : 'none';
+                });
+
+                faqItems.forEach(item => {
+                    const text = item.innerText.toLowerCase();
+                    item.style.display = text.includes(term) ? 'block' : 'none';
+                });
+            });
+
+            // Make placeholder responsive
+            function updateHelpPlaceholder() {
+                if (window.innerWidth <= 768) {
+                    searchInput.placeholder = "Search guides & features...";
+                } else {
+                    searchInput.placeholder = "Search for features, guides, or troubleshooting...";
+                }
+            }
+            window.addEventListener('resize', updateHelpPlaceholder);
+            updateHelpPlaceholder();
+
+
+            lucide.createIcons();
+
+            // Re-apply admin visibility after a short delay to ensure DOM is ready
+            if (typeof applyUserVisibility === 'function') {
+                applyUserVisibility();
+            }
+        });
+    </script>
+</body>
+
+</html>

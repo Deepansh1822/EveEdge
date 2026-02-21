@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Tickets | EveEdge</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @media (max-width: 768px) {
+            #share-ticket-modal .modal-actions {
+                flex-direction: column !important;
+                gap: 0.75rem !important;
+            }
+
+            #share-ticket-modal .modal-actions .btn-outline.danger {
+                width: 100% !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+
+            #share-ticket-modal .modal-actions .submit-btn {
+                width: 100% !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Mobile Menu Toggle Button -->
+
+
+        <!-- Sidebar Reused from Index -->
+        <!-- Sidebar Fragment -->
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header Reused from Index -->
+            <div th:replace="~{fragments/header :: header}"></div>
+
+            <div class="tickets-container">
+                <div class="section-title centered">
+                    <span id="page-title-text">Tickets</span>
+                    <div class="title-decoration">
+                        <div class="title-line"></div>
+                        <div class="title-dot"></div>
+                        <div class="title-line"></div>
+                    </div>
+                    <p id="page-subtitle-text"
+                        style="color: #64748b; font-size: 0.95rem; margin-top: 0.5rem; font-weight: 400; font-family: 'Inter', sans-serif;">
+                        View all events tickets purchased</p>
+                </div>
+
+                <div class="tickets-list-wrapper">
+                    <div id="tickets-list" class="tickets-grid">
+                        <!-- Dynamic tickets loaded here -->
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div id="empty-tickets-state" style="display: none; text-align: center; padding: 5rem 2rem;">
+                    <div class="empty-state-icon" style="margin: 0 auto 2rem;">
+                        <i data-lucide="ticket" size="40"></i>
+                    </div>
+                    <h2 class="empty-state-title">No tickets found</h2>
+                    <p class="empty-state-text" style="margin: 0 auto 2rem;">You haven't purchased any tickets yet.
+                        Explore events and book your first one!</p>
+                    <a href="/" class="submit-btn"
+                        style="display: inline-block; width: auto; padding: 1rem 2.5rem; text-decoration: none;">Browse
+                        Events</a>
+                </div>
+            </div>
+
+            <!-- Footer Fragment -->
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </main>
+    </div>
+
+    <!-- Share Ticket Modal (Kept as is) -->
+    <div class="modal-overlay" id="share-ticket-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Share Ticket</h2>
+                <button class="close-modal" onclick="closeShareModal()">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="share-tabs">
+                    <button type="button" class="share-tab-btn active" id="tab-email"
+                        onclick="toggleShareMode('email')">
+                        <i data-lucide="mail"></i> Email
+                    </button>
+                    <button type="button" class="share-tab-btn" id="tab-whatsapp" onclick="toggleShareMode('whatsapp')">
+                        <i data-lucide="message-circle"></i> WhatsApp
+                    </button>
+                </div>
+
+                <form id="share-ticket-form" onsubmit="shareTicket(event)">
+                    <input type="hidden" id="share-booking-id">
+                    <input type="hidden" id="share-event-title">
+
+                    <div class="form-group">
+                        <label>Recipient Name</label>
+                        <input type="text" id="share-recipient-name" placeholder="Enter recipient's name" required>
+                    </div>
+
+                    <div id="share-email-fields">
+                        <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.9rem;">
+                            Send the ticket directly to an email address.
+                        </p>
+                        <div class="form-group">
+                            <label>Recipient Email</label>
+                            <input type="email" id="share-recipient-email" placeholder="Enter recipient's email"
+                                required>
+                        </div>
+                    </div>
+
+                    <div id="share-whatsapp-fields" style="display: none;">
+                        <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.9rem;">
+                            Share the ticket details via WhatsApp.
+                        </p>
+                        <div class="form-group">
+                            <label>WhatsApp Number</label>
+                            <input type="tel" id="share-recipient-mobile" placeholder="+91 98765 43210">
+                        </div>
+                    </div>
+
+                    <div class="modal-actions" style="margin-top: 1.5rem;">
+                        <button type="submit" class="submit-btn"
+                            style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <i data-lucide="send"></i>
+                            <span>Send Ticket</span>
+                        </button>
+                        <button type="button" class="btn-outline danger" onclick="closeShareModal()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script th:src="@{/js/script.js}"></script>
+    <script>
+        async function loadTickets() {
+            const list = document.getElementById('tickets-list');
+            const empty = document.getElementById('empty-tickets-state');
+            const isUserAdmin = isAdmin();
+
+            try {
+                const endpoint = isUserAdmin ? '/api/bookings/admin/all' : '/api/bookings/getall';
+                const res = await fetchWithAuth(endpoint);
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+                let bookings = await res.json();
+
+                if (!Array.isArray(bookings) || bookings.length === 0) {
+                    list.style.display = 'none';
+                    empty.style.display = 'block';
+                    refreshIcons();
+                    return;
+                }
+
+                list.style.display = 'flex';
+                list.style.flexDirection = 'column';
+                list.style.gap = '1.25rem';
+                empty.style.display = 'none';
+
+                bookings.sort((a, b) => new Date(b.bookingDate || 0) - new Date(a.bookingDate || 0));
+
+                list.innerHTML = bookings.map(b => {
+                    const event = b.event || {};
+                    const status = (b.status || 'Pending').toLowerCase();
+                    const priceText = b.totalAmount > 0 ? `₹${b.totalAmount.toFixed(2)}` : 'FREE';
+
+                    return `
+                        <div class="ticket-list-item ${status === 'pending' ? 'new-ticket' : ''}">
+                            <div class="ticket-item-main">
+                                <div class="ticket-item-icon">
+                                    <i data-lucide="ticket" style="width: 20px; height: 20px;"></i>
+                                </div>
+                                <div class="ticket-item-title-group">
+                                    <h3 class="ticket-title">${event.title || 'Untitled Event'}</h3>
+                                    <div class="ticket-sub-meta">
+                                        <div class="ticket-item-meta">
+                                            <label>Order ID</label>
+                                            <span class="order-id">#ORD-${b.bookingId}</span>
+                                        </div>
+                                        <div class="ticket-item-meta">
+                                            <label>Attendee</label>
+                                            <span class="attendee-name">${b.customerName || 'Guest'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="ticket-item-meta event-date-meta">
+                                <label>Event Date</label>
+                                <span>
+                                    <i data-lucide="calendar" style="width: 14px; height: 14px; margin-right: 4px;"></i>
+                                    ${event.eventDate || 'TBD'}
+                                </span>
+                            </div>
+
+                            <div class="ticket-item-meta location-meta">
+                                <label>Location</label>
+                                <span>
+                                    <i data-lucide="map-pin" style="width: 14px; height: 14px; margin-right: 4px;"></i>
+                                    ${event.location || 'Online/TBD'}
+                                </span>
+                            </div>
+
+                            <div class="ticket-item-meta price-meta">
+                                <label>Price</label>
+                                <span class="price-value">${priceText}</span>
+                            </div>
+
+                            <div class="ticket-item-meta status-meta">
+                                <label>Status</label>
+                                <span class="status-tag ${status}">${b.status || 'Pending'}</span>
+                            </div>
+
+                            <div class="ticket-item-actions">
+                                <button onclick="downloadTicket(${b.bookingId})" class="btn-outline primary download-btn">
+                                    <i data-lucide="file-text"></i>
+                                    <span>Download PDF</span>
+                                </button>
+                                <button class="btn-outline share-btn" onclick="openShareModal(${b.bookingId}, '${(event.title || 'Event').replace(/'/g, "\\'")}')">
+                                    <i data-lucide="share-2"></i>
+                                    <span>Share</span>
+                                </button>
+                                ${isAdmin() || status === 'pending' || status === 'confirmed' ? `
+                                <button class="btn-outline danger cancel-btn" onclick="cancelTicket(${b.bookingId})">
+                                    <i data-lucide="trash-2"></i>
+                                    <span>Cancel</span>
+                                </button>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                if (window.lucide) lucide.createIcons();
+            } catch (err) {
+                console.error("Error loading tickets:", err);
+                list.style.display = 'none';
+                empty.style.display = 'block';
+            }
+        }
+
+        // Keep existing helper functions like openShareModal, closeShareModal, shareTicket, cancelTicket...
+        // ... (preserving logic but removing the preview modal logic)
+
+        let shareMode = 'email';
+        function toggleShareMode(mode) {
+            shareMode = mode;
+            document.querySelectorAll('.share-tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tab-${mode}`).classList.add('active');
+
+            const emailFields = document.getElementById('share-email-fields');
+            const whatsappFields = document.getElementById('share-whatsapp-fields');
+
+            if (mode === 'email') {
+                emailFields.style.display = 'block';
+                whatsappFields.style.display = 'none';
+            } else {
+                emailFields.style.display = 'none';
+                whatsappFields.style.display = 'block';
+            }
+        }
+
+        function openShareModal(bookingId, eventTitle) {
+            document.getElementById('share-booking-id').value = bookingId;
+            document.getElementById('share-event-title').value = eventTitle;
+            openModal('share-ticket-modal');
+        }
+
+        function closeShareModal() {
+            closeModal('share-ticket-modal');
+        }
+
+        async function shareTicket(e) {
+            e.preventDefault();
+            const bookingId = document.getElementById('share-booking-id').value;
+            const eventTitle = document.getElementById('share-event-title').value;
+            const name = document.getElementById('share-recipient-name').value;
+            const mobile = document.getElementById('share-recipient-mobile').value;
+            const email = document.getElementById('share-recipient-email').value;
+
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalContent = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerText = "Sharing...";
+
+            try {
+                const body = {
+                    bookingId,
+                    recipientName: name
+                };
+
+                if (shareMode === 'email') {
+                    body.recipientEmail = email;
+                } else if (shareMode === 'whatsapp') {
+                    body.recipientMobile = mobile;
+                }
+
+                const res = await fetchWithAuth('/api/bookings/share', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                if (res.ok) {
+                    showToast("Shared", `Ticket has been sent via ${shareMode.charAt(0).toUpperCase() + shareMode.slice(1)} successfully (with PDF).`, "success");
+                    closeShareModal();
+                } else {
+                    const errorText = await res.text();
+                    showToast("Error", errorText || "Failed to share ticket.", "error");
+                }
+            } catch (err) {
+                console.error("Share error:", err);
+                showToast("Error", "A network error occurred.", "error");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
+                refreshIcons();
+            }
+            return;
+        }
+
+        async function downloadTicket(bookingId) {
+            try {
+                const res = await fetchWithAuth(`/api/bookings/download-ticket/${bookingId}`);
+                if (!res.ok) throw new Error("Failed to download ticket");
+
+                const blob = await res.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `Ticket-${bookingId}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                a.remove();
+            } catch (err) {
+                console.error("Error downloading ticket:", err);
+                showToast("Error", "Could not download the official PDF. Please try again.", "error");
+            }
+        }
+
+        async function cancelTicket(bookingId) {
+            showConfirm("Are you sure you want to cancel this registration?", async () => {
+                try {
+                    const res = await fetchWithAuth(`/api/bookings/user-cancel/${bookingId}`, { method: 'POST' });
+                    if (res.ok) {
+                        showToast("Cancelled", "Registration cancelled successfully.", "success");
+                        loadTickets();
+                    } else {
+                        const msg = await res.text();
+                        showToast("Failed", msg || "Could not cancel.", "error");
+                    }
+                } catch (err) {
+                    showToast("Error", "Connection error.", "error");
+                }
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const isUserAdmin = isAdmin();
+            const titleText = document.getElementById('page-title-text');
+            const subtitleText = document.getElementById('page-subtitle-text');
+
+            if (isUserAdmin) {
+                // Admin specific logic (if any) can go here, but title text update is removed
+            }
+
+            loadTickets();
+        });
+    </script>
+</body>
+
+</html>

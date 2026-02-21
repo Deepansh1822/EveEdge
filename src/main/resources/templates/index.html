@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EveEdge | Premium Event Management</title>
+    <meta name="description" content="Manage your events with elegance and efficiency.">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+    <div class="app-container">
+
+
+        <!-- Sidebar -->
+        <!-- Sidebar Fragment -->
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header with Search -->
+            <div th:replace="~{fragments/header :: header}"></div>
+
+            <!-- Stats Grid -->
+            <section class="action-grid" style="margin-bottom: 1.5rem;">
+                <div class="action-btn clickable-stat" id="stat-card-categories">
+                    <i data-lucide="layers" style="color: var(--primary);"></i>
+                    <span style="font-size: 1.5rem; font-weight: 800;" id="stat-categories">0</span>
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">Total Categories</span>
+                </div>
+                <div class="action-btn clickable-stat" id="stat-card-events">
+                    <i data-lucide="calendar-check" style="color: var(--secondary);"></i>
+                    <span style="font-size: 1.5rem; font-weight: 800;" id="stat-events">0</span>
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">Total Events</span>
+                </div>
+                <div class="action-btn clickable-stat admin-only" id="stat-card-bookings">
+                    <i data-lucide="ticket" style="color: var(--accent);"></i>
+                    <span style="font-size: 1.5rem; font-weight: 800;" id="stat-bookings">0</span>
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">Total Bookings</span>
+                </div>
+                <!-- Pending Payments Stat Card -->
+                <div class="action-btn clickable-stat admin-only" id="stat-card-pending"
+                    onclick="location.href='/admin/pending-payments'" style="cursor: pointer;">
+                    <i data-lucide="clock" style="color: #f59e0b;"></i>
+                    <span style="font-size: 1.5rem; font-weight: 800;" id="stat-pending">0</span>
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">Pending Payments</span>
+                </div>
+            </section>
+
+
+
+            <!-- Event Categories -->
+            <section class="categories-section">
+                <div class="section-title centered">
+                    <span>Event Categories</span>
+                    <div class="title-decoration">
+                        <div class="title-line"></div>
+                        <div class="title-dot"></div>
+                        <div class="title-line"></div>
+                    </div>
+                </div>
+                <div class="categories-wrapper">
+                    <button class="scroll-btn left" id="scroll-left">
+                        <i data-lucide="chevron-left"></i>
+                    </button>
+                    <div class="categories-container" id="category-container">
+                        <!-- Will be populated via JS -->
+                    </div>
+                    <button class="scroll-btn right" id="scroll-right">
+                        <i data-lucide="chevron-right"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Top Events -->
+            <section class="events-section">
+                <div class="section-title centered">
+                    <span id="top-events-heading">Top Events</span>
+                    <div class="title-decoration">
+                        <div class="title-line"></div>
+                        <div class="title-dot"></div>
+                        <div class="title-line"></div>
+                    </div>
+                </div>
+                <div class="event-grid" id="event-list">
+                    <!-- Will be populated via JS -->
+                </div>
+            </section>
+
+            <!-- Footer Fragment -->
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </main>
+    </div>
+
+    <!-- Modals with Manual IDs for JS and Name for Spring Binding -->
+    <div class="modal-overlay" id="category-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="category-modal-title">Add New Category</h2>
+                <button class="close-modal">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <form id="add-category-form" action="/api/categories/add" method="POST">
+                <input type="hidden" id="cat-id-input" name="categId">
+                <div class="form-group">
+                    <label>Category Name</label>
+                    <input type="text" id="cat-name-input" name="catName" placeholder="e.g. Workshop, Seminar" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="cat-desc-input" name="description" rows="3"
+                        placeholder="Category details..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Category Color</label>
+                    <input type="color" id="cat-color-input" name="catColor" value="#4f46e5"
+                        style="height: 45px; padding: 5px;">
+                </div>
+                <div class="form-group">
+                    <label>Category Icon (Image)</label>
+                    <div id="cat-icon-preview-wrapper" class="preview-image-wrapper"
+                        style="display: none; margin-bottom: 1.5rem; padding: 1.25rem; background: var(--bg-dark); border-radius: 20px; width: fit-content;">
+                        <img id="cat-icon-preview" class="preview-image"
+                            style="width: 400px; height: 220px; border-radius: 16px; object-fit: contain; background: var(--bg-card); padding: 1rem; margin-bottom: 0.75rem; box-shadow: var(--shadow-lg); border: 1px solid var(--glass-border); image-rendering: -webkit-optimize-contrast;">
+                        <p style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">Current Category Icon
+                        </p>
+                    </div>
+                    <input type="file" id="cat-icon-input" name="catIcon" accept="image/*">
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">Leave empty to keep
+                        current icon when updating.</p>
+                </div>
+                <button type="submit" id="category-submit-btn" class="submit-btn"
+                    style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                    <i data-lucide="plus" size="18"></i>
+                    Create Category
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="event-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="event-modal-title">Add New Event</h2>
+                <button class="close-modal">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <form id="add-event-form" action="/api/events/add" method="POST">
+                <input type="hidden" id="event-id-input" name="eventId">
+                <div class="form-group">
+                    <label>Event Title</label>
+                    <input type="text" id="event-title-input" name="title" placeholder="Catchy title" required>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="event-cat-select" name="category.categId" required>
+                        <option value="">Select a category</option>
+                        <!-- Populated via JS -->
+                    </select>
+                </div>
+                <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                    <label for="event-paid-input" style="margin-bottom: 0;">Paid?</label>
+                    <input type="checkbox" id="event-paid-input" name="paidEvent" checked style="width: auto;">
+                </div>
+                <div class="form-group" id="price-container">
+                    <label>Price</label>
+                    <input type="number" id="event-price-input" name="price" min="0" required placeholder="e.g. 50">
+                </div>
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" id="event-loc-input" name="location" required>
+                </div>
+                <div class="form-group">
+                    <label>Event Date</label>
+                    <input type="date" id="event-date-input" name="eventDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Start Time</label>
+                    <input type="time" id="event-start-time-input" name="startTime" required>
+                </div>
+                <div class="form-group">
+                    <label>End Time</label>
+                    <input type="time" id="event-end-time-input" name="endTime" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="event-desc-input" name="description" rows="3"
+                        placeholder="Event details..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Max Seats</label>
+                    <input type="number" id="event-seats-input" name="maxSeats" min="1" required>
+                </div>
+                <div class="form-group">
+                    <label>Banner Image</label>
+                    <div id="event-banner-preview-wrapper" class="preview-image-wrapper"
+                        style="display: none; margin-bottom: 1.5rem; padding: 1.25rem; background: var(--bg-dark); border-radius: 20px; width: fit-content;">
+                        <img id="event-banner-preview" class="preview-image"
+                            style="width: 400px; height: 220px; border-radius: 16px; object-fit: cover; margin-bottom: 0.75rem; box-shadow: var(--shadow-lg); border: 1px solid var(--glass-border); image-rendering: -webkit-optimize-contrast;">
+                        <p style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">Current Event Banner
+                        </p>
+                    </div>
+                    <input type="file" id="event-banner-input" name="banner_image" accept="image/*">
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">Leave empty to keep
+                        current banner when updating.</p>
+                </div>
+                <input type="hidden" id="event-status-input" name="status" value="Upcoming">
+                <button type="submit" id="event-submit-btn" class="submit-btn"
+                    style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                    <i data-lucide="plus" size="18"></i>
+                    Publish Event
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="category-events-modal">
+        <div class="modal-content wide">
+            <div class="modal-header">
+                <h2 class="modal-title" id="cat-events-title">Category Events</h2>
+                <button class="close-modal">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div id="category-actions" class="category-header-actions">
+                <!-- Populated via JS -->
+            </div>
+            <div id="category-events-list" class="category-events-list">
+                <!-- Populated via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Registration Modal -->
+    <div class="modal-overlay" id="register-modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title">Quick Registration</h2>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;" id="register-event-name">
+                        Event Name</p>
+                </div>
+                <button class="close-modal">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <form id="quick-register-form">
+                <input type="hidden" id="register-event-id">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="reg-cust-name" placeholder="Jack Reacher" required>
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="reg-cust-email" placeholder="jack@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Mobile Number</label>
+                    <input type="tel" id="reg-cust-mobile" placeholder="+91 99999 99999" required>
+                </div>
+                <div class="form-group">
+                    <label>Organization / Department</label>
+                    <input type="text" id="reg-cust-org" placeholder="e.g. Science Dept, Tech Corp" required>
+                </div>
+                <div class="form-group">
+                    <label>Attendee Type</label>
+                    <select id="reg-cust-type" required>
+                        <option value="Internal">Internal (Student/Faculty)</option>
+                        <option value="External" selected>External (Guest)</option>
+                    </select>
+                </div>
+                <div
+                    style="margin-top: 1.5rem; padding: 1rem; background: #f8fafc; border-radius: 12px; display: flex; align-items: center; gap: 10px;">
+                    <i data-lucide="info" size="18" style="color: var(--primary);"></i>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">This event is free. No payment
+                        details are required.</p>
+                </div>
+                <button type="submit" class="submit-btn" style="margin-top: 1.5rem;">Confirm Registration</button>
+            </form>
+        </div>
+    </div>
+
+
+
+    <!-- Detailed Info Modal (For Stats) -->
+    <div class="modal-overlay" id="detailed-info-modal">
+        <div class="modal-content wide">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title" id="info-modal-title">Detailed Information</h2>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;" id="info-modal-subtitle">
+                        Sub-heading info</p>
+                </div>
+                <button class="close-modal">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div id="info-modal-body" class="info-list-container">
+                <!-- Populated via JS -->
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="ticket-preview-modal">
+        <div class="modal-content" style="max-width: 650px; padding: 0; background: transparent; box-shadow: none;">
+            <div id="ticket-preview-content">
+                <!-- Ticket design injected here -->
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                <button class="submit-btn" style="width: auto; padding: 0.75rem 2rem;"
+                    onclick="closeModal('ticket-preview-modal')">Close Preview</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toast-container"></div>
+
+
+    <script th:src="@{/js/script.js}"></script>
+</body>
+
+</html>

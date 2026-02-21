@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Events | EveEdge</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Mode-based visibility */
+        body.mode-update .delete-btn,
+        body.mode-update .cancel-btn {
+            display: none !important;
+        }
+
+        body.mode-delete .edit-btn,
+        body.mode-delete .cancel-btn {
+            display: none !important;
+        }
+
+        body.mode-cancel .edit-btn,
+        body.mode-cancel .delete-btn {
+            display: none !important;
+        }
+
+        .cancel-btn {
+            color: #f59e0b;
+        }
+
+        .cancel-btn:hover {
+            background: #f59e0b;
+            color: white;
+            border-color: #f59e0b;
+        }
+
+        .manage-container {
+            width: 95%;
+            max-width: 1500px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .manage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .manage-header h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .list-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .list-item {
+            display: grid;
+            grid-template-columns: 100px 2fr 1fr 0.8fr 1fr 1fr 1fr 120px;
+            align-items: center;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--glass-border);
+            transition: all 0.2s ease;
+        }
+
+        .list-item:last-child {
+            border-bottom: none;
+        }
+
+        .list-item:hover {
+            background: var(--bg-dark);
+        }
+
+        .list-header {
+            background: var(--bg-dark);
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        .item-banner {
+            width: 80px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .item-name {
+            font-weight: 700;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .item-meta {
+            color: var(--text-muted);
+            font-size: 0.825rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .item-meta i,
+        .item-meta svg {
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .item-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .tag-upcoming {
+            background: #eef2ff;
+            color: #4f46e5;
+        }
+
+        .tag-paid {
+            background: #fef2f2;
+            color: #ef4444;
+        }
+
+        .tag-free {
+            background: #f0fdf4;
+            color: #22c55e;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+        }
+
+        .action-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid var(--glass-border);
+            background: white;
+            padding: 0;
+            text-decoration: none;
+        }
+
+        .action-btn i,
+        .action-btn svg {
+            width: 18px !important;
+            height: 18px !important;
+            stroke-width: 2.5px !important;
+        }
+
+        .edit-btn {
+            color: var(--primary);
+        }
+
+        .edit-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .delete-btn {
+            color: #ef4444;
+        }
+
+        .delete-btn:hover {
+            background: #ef4444;
+            color: white;
+            border-color: #ef4444;
+        }
+
+        /* Hide cancelled and passed events in cancel mode */
+        body.mode-cancel .list-item[data-status="Cancelled"],
+        body.mode-cancel .list-item[data-display-status="Passed"] {
+            display: none !important;
+        }
+
+        /* Hide passed events in update mode to preserve booking integrity */
+        body.mode-update .list-item[data-display-status="Passed"] {
+            display: none !important;
+        }
+
+        /* Mobile Responsive - Professional Vertical Cards */
+        @media (max-width: 768px) {
+            .header {
+                display: none !important;
+            }
+
+            .manage-container {
+                padding: 0 1rem !important;
+                margin: 0.5rem auto !important;
+            }
+
+            .manage-header {
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                gap: 0.75rem !important;
+                margin-bottom: 2rem !important;
+                padding: 0.5rem 0 1rem !important;
+                border-bottom: 1px solid var(--glass-border);
+            }
+
+            .manage-header h1 {
+                font-size: 1.25rem !important;
+                font-weight: 800 !important;
+                margin: 0 !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 0.6rem !important;
+                color: var(--text-main) !important;
+            }
+
+            .manage-header h1 i,
+            .manage-header h1 svg,
+            .submit-btn i,
+            .submit-btn svg,
+            .action-btn i,
+            .action-btn svg {
+                display: inline-flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                width: 18px !important;
+                height: 18px !important;
+                stroke-width: 2.5 !important;
+                vertical-align: middle !important;
+            }
+
+            .manage-header h1 i,
+            .manage-header h1 svg {
+                width: 22px !important;
+                height: 22px !important;
+            }
+
+            .manage-header .submit-btn {
+                width: 38px !important;
+                height: 38px !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                border-radius: 12px !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 0 !important;
+                flex-shrink: 0 !important;
+            }
+
+            /* Hide button text on mobile, show only icon */
+            .manage-header .submit-btn .btn-text {
+                display: none !important;
+            }
+
+            .manage-header .submit-btn i,
+            .manage-header .submit-btn svg {
+                width: 20px !important;
+                height: 20px !important;
+            }
+
+            /* Aggressively hide table header on mobile */
+            .list-header {
+                display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: hidden !important;
+                opacity: 0 !important;
+                pointer-events: none !important;
+                border: none !important;
+            }
+
+            .list-card {
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+
+            .list-item {
+                display: block !important;
+                margin-bottom: 1rem !important;
+                padding: 1rem !important;
+                background: var(--bg-card) !important;
+                border: 1px solid var(--glass-border) !important;
+                border-radius: 20px !important;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+            }
+
+            .list-item:hover {
+                background: var(--bg-card) !important;
+                transform: translateY(-2px);
+                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06) !important;
+            }
+
+            .item-banner {
+                width: 100% !important;
+                height: auto !important;
+                border-radius: 14px !important;
+                margin-bottom: 1rem !important;
+                max-height: 250px !important;
+                object-fit: cover !important;
+            }
+
+            /* Add label above banner */
+            .list-item>div:first-child {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                width: 100% !important;
+            }
+
+            .list-item>div:first-child::before {
+                content: 'Event Banner';
+                display: block;
+                font-size: 0.65rem;
+                text-transform: uppercase;
+                color: #94a3b8;
+                font-weight: 800;
+                margin-bottom: 0.75rem;
+                letter-spacing: 0.05em;
+                width: 100%;
+                text-align: center;
+            }
+
+            .item-name {
+                font-size: 1.1rem !important;
+                line-height: 1.3 !important;
+                margin-bottom: 0.5rem !important;
+                color: var(--text-main) !important;
+            }
+
+            /* Add label above event title */
+            .list-item>div:nth-child(2) {
+                margin-bottom: 0.75rem !important;
+            }
+
+            .list-item>div:nth-child(2)::before {
+                content: 'Event Title';
+                display: block;
+                font-size: 0.65rem;
+                text-transform: uppercase;
+                color: #94a3b8;
+                font-weight: 800;
+                margin-bottom: 0.5rem;
+                letter-spacing: 0.05em;
+            }
+
+            /* Tags Row */
+            .list-item>div:nth-child(3),
+            .list-item>div:nth-child(4) {
+                display: inline-flex !important;
+                margin-right: 0.5rem !important;
+                margin-bottom: 0.75rem !important;
+            }
+
+            .item-tag {
+                font-size: 0.75rem !important;
+                padding: 0.35rem 0.85rem !important;
+                border-radius: 12px !important;
+            }
+
+            /* Meta Row (Date & Time) */
+            .list-item>div:nth-child(5),
+            .list-item>div:nth-child(6),
+            .list-item>div:nth-child(7) {
+                display: flex !important;
+                align-items: center !important;
+                gap: 0.5rem !important;
+                font-size: 0.85rem !important;
+                color: var(--text-muted) !important;
+                margin-bottom: 0.5rem !important;
+            }
+
+            .list-item>div:nth-child(5)::before {
+                content: "Date: ";
+                font-size: 0.85rem;
+                font-weight: 700;
+            }
+
+            .list-item>div:nth-child(6)::before {
+                content: "Time Status: ";
+                font-size: 0.85rem;
+                font-weight: 700;
+            }
+
+            .list-item>div:nth-child(7)::before {
+                content: "Schedule Status: ";
+                font-size: 0.85rem;
+                font-weight: 700;
+            }
+
+            .actions {
+                margin-top: 1rem !important;
+                padding-top: 1rem !important;
+                border-top: 1px solid var(--glass-border) !important;
+                justify-content: flex-end !important;
+                gap: 0.75rem !important;
+                text-align: right !important;
+            }
+
+            .action-btn {
+                width: 44px !important;
+                height: 44px !important;
+                border-radius: 12px !important;
+                background: var(--bg-dark) !important;
+            }
+
+            /* Ensure action button icons are visible - CRITICAL */
+            .list-item .action-btn i,
+            .list-item .action-btn svg,
+            .list-item .actions .action-btn i,
+            .list-item .actions .action-btn svg,
+            .list-item .edit-btn i,
+            .list-item .edit-btn svg,
+            .list-item .delete-btn i,
+            .list-item .delete-btn svg,
+            .list-item .cancel-btn i,
+            .list-item .cancel-btn svg {
+                display: inline-flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                width: 22px !important;
+                height: 22px !important;
+                stroke-width: 2.5 !important;
+                flex-shrink: 0 !important;
+            }
+
+            /* Ensure edit button icon has color */
+            .list-item .edit-btn i,
+            .list-item .edit-btn svg {
+                color: var(--primary) !important;
+                stroke: currentColor !important;
+            }
+
+            /* Ensure delete button icon has color */
+            .list-item .delete-btn i,
+            .list-item .delete-btn svg {
+                color: #ef4444 !important;
+                stroke: currentColor !important;
+            }
+
+            /* Ensure cancel button icon has color */
+            .list-item .cancel-btn i,
+            .list-item .cancel-btn svg {
+                color: #f59e0b !important;
+                stroke: currentColor !important;
+            }
+
+            /* Modal Responsive Fixes - More Compact */
+            .modal-content.wide {
+                width: 95% !important;
+                padding: 1.25rem !important;
+                /* Reduced from 1rem to have better spacing, wait user wanted REDUCE */
+            }
+
+            /* Overriding 3.5rem from style.css */
+            .modal-content {
+                padding: 1.5rem 1.25rem 2rem !important;
+            }
+
+            .modal-content::before {
+                margin: -0.75rem auto 1rem !important;
+                /* Closer handle */
+            }
+
+            .modal-header {
+                margin-bottom: 1.25rem !important;
+            }
+
+            .modal-title {
+                font-size: 1.25rem !important;
+                /* Smaller */
+            }
+
+            .modal-header p {
+                font-size: 0.75rem !important;
+                /* Smaller */
+            }
+
+            #delete-modal-content,
+            #cancel-modal-content {
+                grid-template-columns: 1fr !important;
+                gap: 0.75rem !important;
+                /* Tighter */
+                text-align: center;
+            }
+
+            #delete-modal-content .delete-modal-meta {
+                align-items: center !important;
+            }
+
+            #delete-modal-content img,
+            #cancel-modal-content img {
+                margin: 0 auto;
+                width: 100px !important;
+                /* Reduced from 120px */
+                height: 70px !important;
+                /* Reduced from 80px */
+                border-radius: 10px !important;
+            }
+
+            #delete-modal-content p,
+            #cancel-modal-content p {
+                font-size: 0.85rem !important;
+            }
+
+            #delete-modal-content label,
+            #cancel-modal-content label {
+                font-size: 0.65rem !important;
+                margin-bottom: 0.2rem !important;
+            }
+
+            .form-group {
+                margin-bottom: 1rem !important;
+                /* Tighter */
+            }
+
+            /* Cancellation Reason Field */
+            #cancel-reason {
+                min-height: 60px !important;
+                padding: 0.6rem !important;
+                font-size: 0.85rem !important;
+                border-radius: 10px !important;
+            }
+
+            .modal-footer {
+                padding: 1rem 0 0 !important;
+                flex-direction: column !important;
+                /* Stacked */
+                background: transparent !important;
+                border: none !important;
+                gap: 0.75rem !important;
+                justify-content: center !important;
+                align-items: center !important;
+            }
+
+            .modal-footer button {
+                width: 70% !important;
+                /* Reduced width */
+                min-width: 160px !important;
+                margin: 0 !important;
+                height: 38px !important;
+                padding: 0 !important;
+                font-size: 0.8rem !important;
+                border-radius: 10px !important;
+                white-space: nowrap !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .manage-header h1 {
+                font-size: 1rem !important;
+            }
+
+            .list-item {
+                padding: 0.6rem !important;
+                gap: 0.5rem !important;
+            }
+
+            .item-banner {
+                height: 100px !important;
+            }
+
+            .item-name {
+                font-size: 0.75rem !important;
+            }
+
+            .item-meta {
+                font-size: 0.65rem !important;
+            }
+
+            .action-btn {
+                width: 32px !important;
+                height: 32px !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Mobile Menu Toggle Button -->
+
+
+        <!-- Sidebar -->
+        <!-- Sidebar Fragment -->
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header with Search -->
+            <div th:replace="~{fragments/header :: header}"></div>
+
+            <div class="manage-container">
+                <div class="manage-header">
+                    <h1 id="page-heading">
+                        <i id="heading-icon" data-lucide="calendar" style="color: var(--primary);"></i>
+                        <span id="heading-text">Manage Events</span>
+                    </h1>
+                    <a href="/create-event" class="submit-btn"
+                        style="width: fit-content; padding: 0.6rem 1.25rem; margin: 0; font-size: 0.875rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none; border-radius: 12px; height: 42px;">
+                        <i data-lucide="plus" size="18"></i>
+                        <span class="btn-text">Create Event</span>
+                    </a>
+                </div>
+
+                <div class="list-card">
+                    <div class="list-item list-header">
+                        <div>Banner</div>
+                        <div>Event Details</div>
+                        <div>Category</div>
+                        <div>Price</div>
+                        <div>Date</div>
+                        <div>Time Status</div>
+                        <div>Schedule Status</div>
+                        <div style="text-align: right;">Actions</div>
+                    </div>
+
+                    <div th:each="eve : ${events}" class="list-item" th:id="'event-row-' + ${eve.eventId}"
+                        th:attr="data-status=${eve.status}, data-display-status=${eve.displayStatus}">
+                        <div>
+                            <img th:if="${eve.bannerBase64}" th:src="'data:image/jpeg;base64,' + ${eve.bannerBase64}"
+                                class="item-banner" alt="Banner">
+                            <div th:unless="${eve.bannerBase64}" class="item-banner"
+                                style="background: var(--bg-dark); display: flex; align-items: center; justify-content: center;">
+                                <i data-lucide="image" class="text-muted" size="24"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="item-name" th:text="${eve.title}">Event Title</div>
+                            <div class="item-meta">
+                                <i data-lucide="map-pin" size="12"></i>
+                                <span th:text="${eve.location}">Location</span>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="item-tag tag-upcoming" th:text="${eve.category.catName}">Category</span>
+                        </div>
+                        <div>
+                            <span th:if="${eve.paidEvent}" class="item-tag tag-paid"
+                                th:text="'₹' + ${eve.price}">₹50</span>
+                            <span th:unless="${eve.paidEvent}" class="item-tag tag-free">Free</span>
+                        </div>
+                        <div class="item-meta" th:text="${eve.eventDate != null ? eve.eventDate : 'No Date Set'}">Date
+                        </div>
+                        <div>
+                            <span class="item-tag" th:if="${eve.status != 'Cancelled'}" th:text="${eve.displayStatus}"
+                                th:style="'background:' + (${eve.displayStatus} == 'Live' ? '#f0fdf4' : (${eve.displayStatus} == 'Passed' ? '#fef2f2' : '#f0f9ff')) + '; color:' + (${eve.displayStatus} == 'Live' ? '#22c55e' : (${eve.displayStatus} == 'Passed' ? '#ef4444' : '#0ea5e9'))">Status</span>
+                        </div>
+                        <div>
+                            <span class="item-tag" th:text="${eve.status}"
+                                th:style="'background:' + (${eve.status} == 'Cancelled' ? '#fef2f2' : (${eve.status} == 'Rescheduled' ? '#fff7ed' : '#f0f9ff')) + '; color:' + (${eve.status} == 'Cancelled' ? '#ef4444' : (${eve.status} == 'Rescheduled' ? '#f59e0b' : '#0ea5e9'))">Status</span>
+                        </div>
+                        <div class="actions">
+                            <a th:href="@{'/update-event/' + ${eve.eventId}}" class="action-btn edit-btn"
+                                title="Update Event">
+                                <i data-lucide="pencil"></i>
+                            </a>
+                            <button th:onclick="'openDeleteModal(' + ${eve.eventId} + ')'" class="action-btn delete-btn"
+                                title="Delete Event">
+                                <i data-lucide="trash-2"></i>
+                            </button>
+                            <button th:onclick="'openCancelModal(' + ${eve.eventId} + ')'" class="action-btn cancel-btn"
+                                title="Cancel Event">
+                                <i data-lucide="x-circle"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="empty-state-container" th:if="${#lists.isEmpty(events)}"
+                        style="padding: 5rem 2rem; text-align: center; color: var(--text-muted);">
+                        <i id="empty-icon" data-lucide="inbox" size="56"
+                            style="margin-bottom: 1.5rem; opacity: 0.15; color: var(--primary);"></i>
+                        <h3 id="empty-title"
+                            style="color: var(--text-main); font-weight: 700; margin-bottom: 0.5rem; font-size: 1.25rem;">
+                            No Events Found</h3>
+                        <p id="empty-msg"
+                            style="max-width: 400px; margin: 0 auto; line-height: 1.6; font-size: 0.95rem;">It looks
+                            like there are no events matching this criteria. Start by creating a new one!</p>
+                        <a href="/create-event" class="submit-btn"
+                            style="width: auto; margin-top: 2rem; display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; text-decoration: none;">
+                            <i data-lucide="plus" size="18"></i>
+                            Create Your First Event
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Fragment -->
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </main>
+    </div>
+
+    <!-- Delete Modal -->
+    <div class="modal-overlay" id="delete-event-modal">
+        <div class="modal-content wide" style="max-width: 800px;">
+            <div class="modal-header">
+                <div style="display: flex; align-items: center; gap: 1rem; color: #ef4444;">
+                    <i data-lucide="trash-2" size="28"></i>
+                    <div>
+                        <h2 class="modal-title" style="color: var(--text-main);">Permanently Delete Event</h2>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">Warning: This action cannot be undone.
+                            All linked bookings will be archived.</p>
+                    </div>
+                </div>
+                <button class="close-btn" onclick="closeDeleteModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="delete-modal-content"
+                    style="display: grid; grid-template-columns: 180px 1fr; gap: 2rem; align-items: start;">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+            <div class="modal-footer"
+                style="padding: 1.5rem 2.5rem; border-top: 1px solid var(--glass-border); display: flex; justify-content: flex-end; gap: 1rem; background: var(--bg-dark);">
+                <button class="btn-secondary" onclick="closeDeleteModal()"
+                    style="border-radius: 12px; padding: 0.75rem 1.5rem;">Keep Event</button>
+                <button class="submit-btn" id="final-delete-btn"
+                    style="background: #ef4444; border-radius: 12px; padding: 0.75rem 1.5rem; width: auto; margin: 0;">
+                    Confirm Deletion
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel Modal -->
+    <div class="modal-overlay" id="cancel-event-modal">
+        <div class="modal-content wide">
+            <div class="modal-header">
+                <div style="display: flex; align-items: center; gap: 1rem; color: #f59e0b;">
+                    <i data-lucide="x-circle" size="28"></i>
+                    <div>
+                        <h2 class="modal-title" style="color: var(--text-main);">Confirm Cancellation</h2>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">Change status to 'Cancelled'.</p>
+                    </div>
+                </div>
+                <button class="close-btn" onclick="closeCancelModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="cancel-modal-content"
+                    style="display: grid; grid-template-columns: 180px 1fr; gap: 2rem; align-items: start;"></div>
+                <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--glass-border);">
+                    <label for="cancel-reason"
+                        style="display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Cancellation
+                        Reason</label>
+                    <textarea id="cancel-reason" class="modal-input"
+                        placeholder="Please explain why this event is being cancelled..."
+                        style="width: 100%; min-height: 80px; padding: 0.75rem; background: var(--bg-dark); border: 1px solid var(--glass-border); border-radius: 8px; color: var(--text-main); font-family: inherit; resize: vertical;"
+                        required></textarea>
+                </div>
+            </div>
+            <div class="modal-footer"
+                style="padding: 1.5rem 2.5rem; border-top: 1px solid var(--glass-border); display: flex; justify-content: flex-end; gap: 1rem; background: var(--bg-dark);">
+                <button class="btn-secondary" onclick="closeCancelModal()"
+                    style="border-radius: 12px; padding: 0.75rem 1.5rem;">Keep Active</button>
+                <button class="submit-btn" id="final-cancel-btn"
+                    style="background: #f59e0b; border-radius: 12px; padding: 0.75rem 1.5rem; width: auto; margin: 0;">Confirm
+                    Cancellation</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script th:src="@{/js/script.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const mode = urlParams.get('mode') || 'update';
+            document.body.classList.add('mode-' + mode);
+
+            // Update Heading based on mode
+            const headingText = document.getElementById('heading-text');
+            const headingIcon = document.getElementById('heading-icon');
+            if (mode === 'update') {
+                headingText.innerText = "Update Events";
+                headingIcon.outerHTML = '<i id="heading-icon" data-lucide="pencil" style="color: var(--primary);"></i>';
+            } else if (mode === 'delete') {
+                headingText.innerText = "Delete Events";
+                headingIcon.outerHTML = '<i id="heading-icon" data-lucide="trash-2" style="color: var(--primary);"></i>';
+            } else if (mode === 'cancel') {
+                headingText.innerText = "Cancel Events";
+                headingIcon.outerHTML = '<i id="heading-icon" data-lucide="x-circle" style="color: var(--primary);"></i>';
+            }
+
+            lucide.createIcons();
+            checkEmptyState(mode);
+
+            // Force icon refresh after a short delay to ensure all icons render
+            setTimeout(() => {
+                if (window.lucide) {
+                    lucide.createIcons();
+                }
+            }, 100);
+        });
+
+        function checkEmptyState(mode) {
+            const items = document.querySelectorAll('.list-item:not(.list-header)');
+            let visibleCount = 0;
+            items.forEach(item => {
+                if (window.getComputedStyle(item).display !== 'none') {
+                    visibleCount++;
+                }
+            });
+
+            if (visibleCount === 0) {
+                const container = document.getElementById('empty-state-container');
+                const title = document.getElementById('empty-title');
+                const msg = document.getElementById('empty-msg');
+                const icon = document.getElementById('empty-icon');
+
+                container.style.display = 'block';
+                document.querySelector('.list-header').style.display = 'none';
+
+                if (mode === 'update') {
+                    title.innerText = "No Events Available to Update";
+                    msg.innerText = "You haven't published any upcoming events yet. Note: Events that have already passed cannot be modified to protect previous booking data integrity.";
+                    icon.setAttribute('data-lucide', 'edit-3');
+                } else if (mode === 'delete') {
+                    title.innerText = "No Events to Delete";
+                    msg.innerText = "Your event list is currently empty. There are no records available for permanent removal.";
+                    icon.setAttribute('data-lucide', 'trash-2');
+                } else if (mode === 'cancel') {
+                    title.innerText = "No Active Events";
+                    msg.innerText = "There are no active events available for cancellation. Cancelled events are hidden from this view.";
+                    icon.setAttribute('data-lucide', 'x-circle');
+                }
+                lucide.createIcons();
+            }
+        }
+
+        let currentDeleteId = null;
+        async function openDeleteModal(id) {
+            currentDeleteId = id;
+            const modal = document.getElementById('delete-event-modal');
+            const content = document.getElementById('delete-modal-content');
+            content.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 2rem;"><p>Loading event data...</p></div>';
+            modal.classList.add('active');
+            try {
+                const res = await fetchWithAuth(`/api/events/get/${id}`);
+                const event = await res.json();
+                const bannerHtml = event.bannerBase64
+                    ? `data:image/jpeg;base64,${event.bannerBase64}`
+                    : `https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&q=80&w=400`;
+
+                content.innerHTML = `
+                    <div>
+                        <label style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; display: block; margin-bottom: 0.5rem;">Banner Preview</label>
+                        <img src="${bannerHtml}" style="width: 100%; height: 200px; object-fit: cover; border-radius: 12px; border: 1px solid var(--glass-border);">
+                        <div class="delete-modal-meta" style="margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted); font-size: 0.8rem;">
+                                <i data-lucide="calendar" size="14"></i>
+                                <span>${event.eventDate || 'Date TBD'}</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted); font-size: 0.8rem;">
+                                <i data-lucide="map-pin" size="14"></i>
+                                <span>${event.location}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-group" style="margin-bottom: 1.5rem;">
+                            <label style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Event Title</label>
+                            <p style="font-size: 1.25rem; font-weight: 800; color: var(--text-main); line-height: 1.2;">${event.title}</p>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1.5rem;">
+                            <label style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Category</label>
+                            <p style="font-size: 0.9rem; font-weight: 600; color: var(--primary);">${event.category ? event.category.catName : 'General'}</p>
+                        </div>
+                        <div style="padding: 1rem; background: rgba(239, 68, 68, 0.05); border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.1);">
+                            <p style="font-size: 0.85rem; color: #ef4444; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                                <i data-lucide="alert-triangle" size="16"></i>
+                                DESTRUCTION WARNING
+                            </p>
+                            <p style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.5;">Deleting this event will remove it from all public listings. All historical booking data for this event will be archived immediately.</p>
+                        </div>
+                    </div>
+                `;
+                lucide.createIcons();
+            } catch (err) {
+                content.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: #ef4444;"><p>Failed to load event details.</p></div>';
+            }
+        }
+
+        function closeDeleteModal() { document.getElementById('delete-event-modal').classList.remove('active'); }
+
+        document.getElementById('final-delete-btn').addEventListener('click', async () => {
+            if (!currentDeleteId) return;
+            const btn = document.getElementById('final-delete-btn');
+            const originalContent = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin"></i> <span>Deleting...</span>';
+            if (window.refreshIcons) refreshIcons();
+            else if (window.lucide) lucide.createIcons();
+
+            try {
+                const res = await fetchWithAuth(`/api/events/delete/${currentDeleteId}`, { method: 'DELETE' });
+                if (res.ok) {
+                    closeDeleteModal();
+                    document.getElementById('event-row-' + currentDeleteId).remove();
+                    checkEmptyState('delete');
+                    showToast("Event Deleted", "The event has been permanently removed.", "success");
+                    setTimeout(() => location.reload(), 1500);
+                }
+                else {
+                    showToast("Action Failed", "Failed to delete the event. Please try again later.", "error");
+                    btn.disabled = false;
+                    btn.innerHTML = originalContent;
+                    if (window.refreshIcons) refreshIcons();
+                }
+            } catch (err) {
+                showToast("Action Failed", "A network error occurred while trying to delete the event.", "error");
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
+                if (window.refreshIcons) refreshIcons();
+            }
+        });
+
+        let currentCancelId = null;
+        async function openCancelModal(id) {
+            currentCancelId = id;
+            const modal = document.getElementById('cancel-event-modal');
+            const content = document.getElementById('cancel-modal-content');
+            content.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 2rem;"><p>Loading event data...</p></div>';
+            modal.classList.add('active');
+            try {
+                const res = await fetchWithAuth(`/api/events/get/${id}`);
+                const event = await res.json();
+                const bannerHtml = event.bannerBase64
+                    ? `data:image/jpeg;base64,${event.bannerBase64}`
+                    : `https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&q=80&w=400`;
+
+                content.innerHTML = `
+                    <div>
+                        <label style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; display: block; margin-bottom: 0.5rem;">Banner Preview</label>
+                        <img src="${bannerHtml}" style="width: 100%; height: 160px; object-fit: cover; border-radius: 12px; border: 1px solid var(--glass-border);">
+                    </div>
+                    <div>
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Event Title</label>
+                            <p style="font-size: 1.15rem; font-weight: 800; color: var(--text-main);">${event.title}</p>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Current Schedule Status</label>
+                            <p style="font-size: 0.9rem; font-weight: 600; color: #f59e0b;">${event.status}</p>
+                        </div>
+                        <div style="padding: 0.75rem; background: rgba(245, 158, 11, 0.05); border-radius: 10px; border: 1px solid rgba(245, 158, 11, 0.1);">
+                            <p style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4;">
+                                <i data-lucide="info" size="12" style="display: inline-block; margin-right: 4px; vertical-align: middle;"></i>
+                                Note: This action will officially mark the event as cancelled.
+                            </p>
+                        </div>
+                    </div>
+                `;
+                lucide.createIcons();
+            } catch (err) { content.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: #ef4444;"><p>Failed to load data.</p></div>'; }
+        }
+
+        function closeCancelModal() { document.getElementById('cancel-event-modal').classList.remove('active'); }
+
+        document.getElementById('final-cancel-btn').addEventListener('click', async () => {
+            if (!currentCancelId) return;
+            const reason = document.getElementById('cancel-reason').value.trim();
+            if (!reason) {
+                showToast("Required", "Please provide a cancellation reason.", "error");
+                document.getElementById('cancel-reason').focus();
+                return;
+            }
+
+            const btn = document.getElementById('final-cancel-btn');
+            const originalContent = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader-2" class="animate-spin"></i> <span>Cancelling...</span>';
+            if (window.refreshIcons) refreshIcons();
+            else if (window.lucide) lucide.createIcons();
+
+            try {
+                const res = await fetchWithAuth(`/api/events/status/${currentCancelId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        status: "Cancelled",
+                        statusReason: reason
+                    })
+                });
+
+                if (res.ok) {
+                    closeCancelModal();
+                    document.getElementById('event-row-' + currentCancelId).setAttribute('data-status', 'Cancelled');
+                    checkEmptyState('cancel');
+                    showToast("Event Cancelled", "The event has been marked as cancelled and all attendees have been notified.", "success");
+                    setTimeout(() => location.reload(), 1500);
+                }
+                else {
+                    showToast("Action Failed", "Failed to cancel the event. Please verify your connection.", "error");
+                    btn.disabled = false;
+                    btn.innerHTML = originalContent;
+                    if (window.refreshIcons) refreshIcons();
+                }
+            } catch (err) {
+                showToast("Action Failed", "An unexpected error occurred during cancellation.", "error");
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
+                if (window.refreshIcons) refreshIcons();
+            }
+        });
+    </script>
+</body>
+
+</html>

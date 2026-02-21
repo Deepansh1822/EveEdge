@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tickets Booking | EveEdge</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .attendee-section {
+            margin-top: 1.5rem;
+            padding-top: 1.25rem;
+            border-top: 1px dashed var(--glass-border);
+            width: 100%;
+        }
+
+        .attendee-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .attendee-row {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--glass-border);
+            transition: all 0.2s ease;
+        }
+
+        .attendee-row:hover {
+            border-color: var(--primary-glow);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+        }
+
+        .attendee-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .attendee-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .attendee-toggle {
+            display: flex;
+            background: #fff;
+            padding: 3px;
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
+            gap: 2px;
+        }
+
+        .toggle-btn {
+            padding: 0.4rem 0.8rem;
+            border-radius: 7px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+        }
+
+        .toggle-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 2px 6px rgba(79, 70, 229, 0.2);
+        }
+
+        .attendee-inputs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .attendee-inputs .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .attendee-inputs label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-left: 2px;
+        }
+
+        .attendee-inputs input {
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
+            font-size: 0.85rem;
+            width: 100%;
+            outline: none;
+            background: #fff;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .attendee-inputs input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        .attendee-inputs input:disabled {
+            background: #f1f5f9;
+            cursor: not-allowed;
+            color: var(--text-muted);
+            border-color: #e2e8f0;
+        }
+
+        /* Tooltip Styles */
+        .info-tooltip-container {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text-muted);
+            margin-left: 5px;
+        }
+
+        .info-tooltip-container:hover {
+            color: var(--primary);
+        }
+
+        .info-tooltip-text {
+            visibility: hidden;
+            width: 220px;
+            background-color: #1e293b;
+            color: #fff;
+            text-align: left;
+            border-radius: 8px;
+            padding: 8px 12px;
+            position: absolute;
+            z-index: 1000;
+            bottom: 125%;
+            right: 0;
+            /* Align right to prevent overflow */
+            left: auto;
+            transform: none;
+            opacity: 0;
+            transition: opacity 0.3s, bottom 0.3s;
+            font-size: 0.75rem;
+            line-height: 1.4;
+            font-weight: 500;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            pointer-events: none;
+        }
+
+        .info-tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            right: 15px;
+            /* Adjustable based on icon position */
+            left: auto;
+            margin-left: 0;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #1e293b transparent transparent transparent;
+        }
+
+        .info-tooltip-container:hover .info-tooltip-text {
+            visibility: visible;
+            opacity: 1;
+            bottom: 140%;
+        }
+
+        /* Relying on global style.css for core responsiveness */
+        @media (max-width: 768px) {
+            .cart-item-img {
+                width: 80px !important;
+                height: 80px !important;
+                min-width: 80px !important;
+            }
+
+            .attendee-inputs {
+                grid-template-columns: 1fr !important;
+            }
+
+            .toggle-btn {
+                padding: 0.4rem 0.6rem !important;
+                font-size: 0.65rem !important;
+            }
+
+            /* Restructure attendee header for mobile - Keep Label & Icon on same line */
+            .attendee-header {
+                display: flex !important;
+                flex-wrap: wrap !important;
+                align-items: center !important;
+                justify-content: flex-start !important;
+                gap: 0 !important;
+            }
+
+            .attendee-header>div {
+                display: contents !important;
+            }
+
+            .attendee-label {
+                order: 1 !important;
+                margin-right: 8px !important;
+                width: auto !important;
+                flex: none !important;
+                margin-bottom: 0 !important;
+            }
+
+            .attendee-header .info-tooltip-container {
+                order: 2 !important;
+                margin: 0 !important;
+                width: auto !important;
+                flex: none !important;
+            }
+
+            .attendee-toggle {
+                order: 3 !important;
+                width: 100% !important;
+                margin-top: 10px !important;
+                flex: none !important;
+            }
+
+            /* Fix info icon for Internal/External section - Same Line */
+            .attendee-inputs .input-group:nth-child(5) {
+                display: flex !important;
+                flex-direction: row !important;
+                flex-wrap: wrap !important;
+                align-items: center !important;
+                gap: 0 !important;
+            }
+
+            .attendee-inputs .input-group:nth-child(5)>label {
+                order: 1 !important;
+                width: auto !important;
+                margin-right: 8px !important;
+                margin-bottom: 0 !important;
+                flex: none !important;
+            }
+
+            .attendee-inputs .input-group:nth-child(5)>div {
+                display: contents !important;
+            }
+
+            .input-group .info-tooltip-container {
+                order: 2 !important;
+                margin: 0 !important;
+                width: auto !important;
+                flex: none !important;
+            }
+
+            /* Adjust tooltip positioning for mobile */
+            .info-tooltip-text {
+                width: 200px !important;
+                right: -80px !important;
+                left: auto !important;
+                transform: none !important;
+                bottom: 125% !important;
+            }
+
+            .info-tooltip-text::after {
+                right: 95px !important;
+                left: auto !important;
+                margin-left: 0 !important;
+            }
+
+            .info-tooltip-container:hover .info-tooltip-text {
+                bottom: 140% !important;
+            }
+        }
+    </style>
+</head>
+</style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Mobile Menu Toggle Button -->
+
+
+        <!-- Sidebar -->
+        <!-- Sidebar Fragment -->
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+        <main class="main-content">
+            <!-- Header with Search -->
+            <div th:replace="~{fragments/header :: header}"></div>
+
+            <div class="section-title centered">
+                <span>Tickets Booking</span>
+                <div class="title-decoration">
+                    <div class="title-line"></div>
+                    <div class="title-dot"></div>
+                    <div class="title-line"></div>
+                </div>
+            </div>
+
+            <div class="cart-container">
+                <div class="cart-grid" id="cart-grid-container">
+                    <div class="cart-items-section">
+                        <div id="cart-items">
+                            <!-- Dynamic items -->
+                        </div>
+                    </div>
+
+                    <div class="checkout-summary">
+                        <h3>Order Summary</h3>
+                        <div class="payment-options">
+                            <label class="payment-method active" for="pay-digital">
+                                <input type="radio" name="pay" id="pay-digital" checked onchange="updateButtonText()">
+                                <i data-lucide="shield-check"></i>
+                                <span>Digital Payment</span>
+                            </label>
+                            <label class="payment-method" for="pay-cash">
+                                <input type="radio" name="pay" id="pay-cash" onchange="updateButtonText()">
+                                <i data-lucide="banknote"></i>
+                                <span>Cash</span>
+                            </label>
+                        </div>
+
+                        <div class="summary-row">
+                            <span>Subtotal</span>
+                            <span id="subtotal-val">₹0.00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Service Fee (5%)</span>
+                            <span id="fee-val">₹0.00</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Total</span>
+                            <span id="total-val">₹0.00</span>
+                        </div>
+
+                        <button class="submit-btn" id="checkout-btn">Confirm & Pay</button>
+                    </div>
+                </div>
+
+                <!-- Empty Cart State -->
+                <div id="empty-cart-state" style="display: none; text-align: center; padding: 5rem 2rem;">
+                    <div class="empty-state-icon" style="margin: 0 auto 2rem;">
+                        <i data-lucide="shopping-cart" size="40"></i>
+                    </div>
+                    <h2 class="empty-state-title">No tickets selected</h2>
+                    <p class="empty-state-text" style="margin: 0 auto 2rem;">Looks like you haven't selected any tickets
+                        yet. Start exploring!</p>
+                    <a href="/" class="submit-btn"
+                        style="display: inline-block; width: auto; padding: 1rem 2.5rem; text-decoration: none;">Browse
+                        Events</a>
+                </div>
+            </div>
+            <!-- Footer Fragment -->
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </main>
+    </div>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <script th:src="@{/js/script.js}"></script>
+    <script>
+        // Simple Toast implementation if not provided by library
+        function showToast(title, message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.style.cssText = `
+                background: #1e293b;
+                color: white;
+                padding: 1rem;
+                border-radius: 8px;
+                margin-bottom: 0.5rem;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                animation: toast-in 0.3s ease;
+            `;
+            toast.innerHTML = `
+                <div style="font-weight: bold; margin-bottom: 4px;">${title}</div>
+                <div style="font-size: 0.85rem; opacity: 0.9;">${message}</div>
+            `;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
+        }
+
+        function refreshCartIcons() {
+            try {
+                if (window.lucide) {
+                    lucide.createIcons();
+                }
+            } catch (e) {
+                console.error("Lucide refresh failed", e);
+            }
+        }
+
+        async function loadCart() {
+            const cartJSON = localStorage.getItem('event_cart') || '[]';
+            const cart = JSON.parse(cartJSON);
+            const gridContainer = document.getElementById('cart-grid-container');
+            const emptyState = document.getElementById('empty-cart-state');
+
+            if (cart.length === 0) {
+                gridContainer.style.setProperty('display', 'none', 'important');
+                emptyState.style.display = 'block';
+                refreshCartIcons();
+                return;
+            }
+
+            // Normal state
+            gridContainer.style.display = 'grid';
+            emptyState.style.display = 'none';
+
+            renderCartUI(cart);
+            refreshCartIcons();
+
+            // Background pass: Sync with live seats
+            for (let item of cart) {
+                try {
+                    const res = await fetch(`/api/events/get/${item.eventId}`);
+                    if (res.ok) {
+                        const liveEvent = await res.json();
+                        item.availableSeats = liveEvent.availableSeats;
+                    }
+                } catch (e) {
+                    console.error("Sync error", e);
+                }
+            }
+            localStorage.setItem('event_cart', JSON.stringify(cart));
+
+            // Second pass: Update UI with synced data
+            renderCartUI(cart);
+            refreshCartIcons();
+        }
+
+        function renderCartUI(cart) {
+            const itemsContainer = document.getElementById('cart-items');
+            itemsContainer.innerHTML = cart.map((item, index) => {
+                const bannerHtml = item.banner_image
+                    ? `data:image/jpeg;base64,${item.banner_image}`
+                    : `https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?auto=format&fit=crop&q=80&w=400`;
+
+                const qty = parseInt(item.quantity) || 1;
+                const available = parseInt(item.availableSeats);
+                const isAtLimit = qty >= available;
+
+                return `
+                    <div class="cart-item">
+                        <div style="display: flex; width: 100%; gap: 1.5rem; align-items: center;">
+                            <img src="${bannerHtml}" class="cart-item-img" alt="${item.title}">
+                            <div class="cart-item-info">
+                                <h3 class="cart-item-title">${item.title}</h3>
+                                <div class="cart-item-meta">
+                                    <span><i data-lucide="calendar" size="14"></i> ${item.eventDate || 'TBD'}</span>
+                                    <span><i data-lucide="map-pin" size="14"></i> ${item.location}</span>
+                                    <span style="color: var(--text-muted); font-size: 0.8rem;">(${available} available)</span>
+                                </div>
+                                <div class="cart-item-controls">
+                                    <button class="qty-btn" ${qty <= 1 ? 'disabled style="opacity: 0.3; cursor: not-allowed;"' : ''} onclick="updateQty(${index}, -1)">
+                                        <i data-lucide="minus" size="14"></i>
+                                    </button>
+                                    <span class="qty-val">${qty}</span>
+                                    <button class="qty-btn" ${isAtLimit ? 'disabled style="opacity: 0.3; cursor: not-allowed;"' : ''} onclick="updateQty(${index}, 1)">
+                                        <i data-lucide="plus" size="14"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="cart-item-price">₹${((item.price) * qty).toFixed(2)}</div>
+                        </div>
+                        <button class="remove-cart-item" onclick="removeFromCart(${index})">
+                            <i data-lucide="trash-2" size="16"></i>
+                        </button>
+                        
+                        <!-- Attendee Details Section -->
+                        <div class="attendee-section">
+                            <div class="attendee-title">
+                                <i data-lucide="users" size="16"></i>
+                                Assign Attendee Details
+                            </div>
+                            <div class="attendee-list">
+                                ${Array.from({ length: qty }).map((_, i) => `
+                                    <div class="attendee-row" data-item-idx="${index}" data-att-idx="${i}">
+                                        <div class="attendee-header">
+                                            <span class="attendee-label">
+                                                <i data-lucide="ticket" size="14" style="color: var(--primary);"></i>
+                                                Ticket #${i + 1}
+                                            </span>
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <div class="attendee-toggle" style="flex: 1;">
+                                                    <button class="toggle-btn active" style="flex: 1; text-align: center;" onclick="setAttendeeType(${index}, ${i}, 'other', this)">For Other</button>
+                                                    <button class="toggle-btn" style="flex: 1; text-align: center;" onclick="setAttendeeType(${index}, ${i}, 'self', this)">For Self</button>
+                                                </div>
+                                                <div class="info-tooltip-container">
+                                                    <i data-lucide="info" size="16"></i>
+                                                    <span class="info-tooltip-text">
+                                                        <strong>For Self:</strong> Select if you are the attendee.<br>
+                                                        <strong>For Other:</strong> Select if you are booking for other attendee.
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="attendee-inputs">
+                                            <div class="input-group">
+                                                <label>FullName</label>
+                                                <input type="text" class="att-name" placeholder="Attendee Name" required>
+                                            </div>
+                                            <div class="input-group">
+                                                <label>Email Address</label>
+                                                <input type="email" class="att-email" placeholder="Attendee Email" required>
+                                            </div>
+                                            <div class="input-group">
+                                                <label>Mobile Number</label>
+                                                <input type="tel" class="att-mobile" placeholder="+91 9999999999" required>
+                                            </div>
+                                            <div class="input-group">
+                                                <label>Organization</label>
+                                                <input type="text" class="att-org" placeholder="College or School Name" required>
+                                            </div>
+                                            <div class="input-group">
+                                                <label>Are you from this organisation?</label>
+                                                <div style="display: flex; align-items: center; gap: 8px;">
+                                                    <div class="attendee-toggle" style="flex: 1;">
+                                                        <button class="toggle-btn active" style="flex: 1; text-align: center;" onclick="setUserType(${index}, ${i}, 'Internal', this)">Internal</button>
+                                                        <button class="toggle-btn" style="flex: 1; text-align: center;" onclick="setUserType(${index}, ${i}, 'External', this)">External</button>
+                                                    </div>
+                                                    <div class="info-tooltip-container">
+                                                        <i data-lucide="info" size="16"></i>
+                                                        <span class="info-tooltip-text" style="width: 200px; bottom: 150%;">
+                                                            <strong>Internal:</strong> Select if you belong to this organization.<br>
+                                                            <strong>External:</strong> Select if you are a guest or visitor.
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <input type="hidden" class="att-type" value="Internal">
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            updateSummary(cart);
+        }
+
+        function updateQty(index, delta) {
+            let cart = JSON.parse(localStorage.getItem('event_cart') || '[]');
+            const item = cart[index];
+            if (!item.quantity) item.quantity = 1;
+
+            const newQty = item.quantity + delta;
+            const available = parseInt(item.availableSeats);
+
+            if (newQty < 1) return; // Shouldn't happen due to disabled button
+            if (newQty > available) {
+                showToast("Limit Reached", `Only ${available} seats left.`, "info");
+                return;
+            }
+
+            item.quantity = newQty;
+            localStorage.setItem('event_cart', JSON.stringify(cart));
+            loadCart();
+            updateCartCount(); // Sync navbar counter
+            showToast("Quantity Updated", `Quantity for ${item.title} updated to ${newQty}.`, "success");
+        }
+
+        function updateSummary(cart) {
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * (item.quantity || 1)), 0);
+            const fee = subtotal * 0.05;
+            const total = subtotal + fee;
+
+            document.getElementById('subtotal-val').innerText = `₹${subtotal.toFixed(2)}`;
+            document.getElementById('fee-val').innerText = `₹${fee.toFixed(2)}`;
+            document.getElementById('total-val').innerText = `₹${total.toFixed(2)}`;
+        }
+
+
+
+        function removeFromCart(index) {
+            console.log('Removing item at index:', index);
+            let cart = JSON.parse(localStorage.getItem('event_cart') || '[]');
+            if (index >= 0 && index < cart.length) {
+                const removedItem = cart.splice(index, 1)[0];
+                localStorage.setItem('event_cart', JSON.stringify(cart));
+
+                // Immediately update local UI
+                updateCartCount();
+                loadCart(); // This will re-render everything
+
+                showToast("Item Removed", `${removedItem.title} has been removed.`, "info");
+            }
+        }
+
+        // Dynamically get logged in user data from localStorage
+        const loggedInUser = {
+            name: localStorage.getItem('username') || "Guest User",
+            email: localStorage.getItem('userEmail') || "guest@example.com",
+            mobile: localStorage.getItem('userMobile') || "",
+            org: localStorage.getItem('userOrg') || ""
+        };
+
+        function setUserType(itemIdx, attIdx, type, btn) {
+            const row = document.querySelector(`.attendee-row[data-item-idx="${itemIdx}"][data-att-idx="${attIdx}"]`);
+            const btns = btn.parentElement.querySelectorAll('.toggle-btn');
+            btns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            row.querySelector('.att-type').value = type;
+        }
+
+        function setAttendeeType(itemIdx, attIdx, type, btn) {
+            const row = document.querySelector(`.attendee-row[data-item-idx="${itemIdx}"][data-att-idx="${attIdx}"]`);
+            const btns = btn.parentElement.querySelectorAll('.toggle-btn');
+            btns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const nameInput = row.querySelector('.att-name');
+            const emailInput = row.querySelector('.att-email');
+            const mobileInput = row.querySelector('.att-mobile');
+            const orgInput = row.querySelector('.att-org');
+
+            if (type === 'self') {
+                nameInput.value = loggedInUser.name;
+                emailInput.value = loggedInUser.email;
+                mobileInput.value = loggedInUser.mobile;
+                orgInput.value = loggedInUser.org;
+                nameInput.disabled = true;
+                emailInput.disabled = true;
+                mobileInput.disabled = true;
+                orgInput.disabled = true;
+            } else {
+                nameInput.value = "";
+                emailInput.value = "";
+                mobileInput.value = "";
+                orgInput.value = "";
+                nameInput.disabled = false;
+                emailInput.disabled = false;
+                mobileInput.disabled = false;
+                orgInput.disabled = false;
+                nameInput.focus();
+            }
+        }
+
+        function updateButtonText() {
+            const checkoutBtn = document.getElementById('checkout-btn');
+            const selected = document.querySelector('input[name="pay"]:checked');
+            if (checkoutBtn && selected) {
+                const label = selected.closest('.payment-method').querySelector('span').innerText;
+                checkoutBtn.innerText = label;
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            loadCart();
+            updateCartCount();
+            updateButtonText();
+
+            document.getElementById('checkout-btn').addEventListener('click', async () => {
+                const cart = JSON.parse(localStorage.getItem('event_cart') || '[]');
+                if (cart.length === 0) return;
+
+                // Validate all attendee fields
+                const attendeeRows = document.querySelectorAll('.attendee-row');
+                let isValid = true;
+                attendeeRows.forEach(row => {
+                    const name = row.querySelector('.att-name').value.trim();
+                    const email = row.querySelector('.att-email').value.trim();
+                    const mobile = row.querySelector('.att-mobile').value.trim();
+                    const org = row.querySelector('.att-org').value.trim();
+                    if (!name || !email || !mobile || !org) isValid = false;
+                });
+
+                if (!isValid) {
+                    showToast("Missing Info", "Please provide all details for all tickets.", "error");
+                    return;
+                }
+
+                const checkoutBtn = document.getElementById('checkout-btn');
+                const originalContent = checkoutBtn.innerHTML;
+                checkoutBtn.disabled = true;
+                checkoutBtn.innerHTML = '<i data-lucide="loader-2" class="animate-spin"></i> <span>Processing...</span>';
+                if (window.lucide) lucide.createIcons();
+
+                // Get selected payment mode
+                const paymentRadio = document.querySelector('input[name="pay"]:checked');
+                const paymentLabel = paymentRadio ? paymentRadio.closest('.payment-method').querySelector('span').innerText : 'Digital Payment';
+                const isCash = paymentLabel.toLowerCase().includes('cash');
+
+                if (isCash) {
+                    await finalizeBookings(paymentLabel, true);
+                    // Reset button if not redirected (finalizeBookings redirects on success)
+                    checkoutBtn.disabled = false;
+                    checkoutBtn.innerHTML = originalContent;
+                    refreshCartIcons();
+                } else {
+                    // Digital Payment Flow (Razorpay)
+                    try {
+                        const totalAmountStr = document.getElementById('total-val').innerText.replace(/[^0-9.]/g, '');
+                        const amount = parseFloat(totalAmountStr);
+
+                        showToast("Initializing...", "Setting up secure payment gateway...", "info");
+
+                        // 1. Get Razorpay Config & Create Order
+                        const orderRes = await fetchWithAuth('/api/payments/create-order', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ amount: amount })
+                        });
+
+                        if (!orderRes.ok) throw new Error("Failed to create payment order");
+                        const order = await orderRes.json();
+
+                        const configRes = await fetchWithAuth('/api/payments/config');
+                        const config = await configRes.json();
+
+                        // 2. Open Razorpay Popup
+                        const options = {
+                            "key": config.keyId,
+                            "amount": order.amount,
+                            "currency": "INR",
+                            "name": "EveEdge",
+                            "description": "Ticket Booking",
+                            "order_id": order.id,
+                            "handler": async function (response) {
+                                // On Payment Success
+                                await finalizeBookings(paymentLabel, false, response.razorpay_payment_id);
+                                // Button restoral is handled in finalizeBookings or after popup
+                            },
+                            "modal": {
+                                "ondismiss": function () {
+                                    checkoutBtn.disabled = false;
+                                    checkoutBtn.innerHTML = originalContent;
+                                    if (window.lucide) lucide.createIcons();
+                                }
+                            },
+                            "prefill": {
+                                "name": loggedInUser.name,
+                                "email": loggedInUser.email
+                            },
+                            "theme": { "color": "#2563eb" }
+                        };
+
+                        const rzp1 = new Razorpay(options);
+                        rzp1.open();
+
+                    } catch (err) {
+                        console.error("Payment setup error:", err);
+                        showToast("Payment Error", "Could not initialize payment: " + err.message, "error");
+                        checkoutBtn.disabled = false;
+                        checkoutBtn.innerHTML = originalContent;
+                        refreshCartIcons();
+                    }
+                }
+            });
+
+            async function finalizeBookings(paymentLabel, isCash, paymentId = '') {
+                const cart = JSON.parse(localStorage.getItem('event_cart') || '[]');
+                showToast("Processing...", "Saving your registrations...", "info");
+
+                try {
+                    let allSuccessful = true;
+                    for (let itemIdx = 0; itemIdx < cart.length; itemIdx++) {
+                        const item = cart[itemIdx];
+                        const rows = document.querySelectorAll(`.attendee-row[data-item-idx="${itemIdx}"]`);
+
+                        for (const row of rows) {
+                            const name = row.querySelector('.att-name').value;
+                            const email = row.querySelector('.att-email').value;
+                            const mobile = row.querySelector('.att-mobile').value;
+                            const org = row.querySelector('.att-org').value;
+                            const utype = row.querySelector('.att-type').value;
+
+                            const bookingData = {
+                                event: { eventId: item.eventId },
+                                customerName: name,
+                                customerEmail: email,
+                                mobileNumber: mobile,
+                                organization: org,
+                                userType: utype,
+                                quantity: 1,
+                                totalAmount: item.price,
+                                status: isCash ? "Pending" : "Confirmed",
+                                paymentMode: isCash ? "Cash" : "Digital Payment",
+                                transactionId: paymentId // Store Razorpay Payment ID if available
+                            };
+
+                            const response = await fetchWithAuth('/api/bookings/add', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(bookingData)
+                            });
+
+                            if (!response.ok) {
+                                allSuccessful = false;
+                                const errorText = await response.text();
+                                throw new Error(errorText || "Failed to add booking");
+                            }
+                        }
+                    }
+
+                    if (allSuccessful) {
+                        localStorage.removeItem('event_cart');
+                        // Update UI immediately
+                        if (typeof loadCart === 'function') loadCart();
+                        if (typeof updateCartCount === 'function') updateCartCount();
+
+                        if (isCash) {
+                            showToast("Registration Received", "Please pay at the venue to confirm your tickets.", "info");
+                        } else {
+                            showToast("Payment Successful!", "Your tickets are now confirmed.", "success");
+                        }
+                        // Stay on page for a brief moment to show success message, then redirect
+                        setTimeout(() => window.location.href = '/tickets', 1500);
+                    }
+                } catch (err) {
+                    console.error("Booking error:", err);
+                    showToast("Error", "Failed to complete bookings: " + err.message, "error");
+                    // Restore button state on error so user can try again
+                    if (checkoutBtn) {
+                        checkoutBtn.disabled = false;
+                        checkoutBtn.innerHTML = originalContent;
+                        refreshCartIcons();
+                    }
+                }
+            }
+
+            document.querySelectorAll('.payment-method').forEach(method => {
+                method.addEventListener('click', () => {
+                    document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('active'));
+                    method.classList.add('active');
+                });
+            });
+
+        });
+    </script>
+    <!-- Razorpay Checkout Script -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Categories | EveEdge</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Mode-based visibility */
+        body.mode-update .delete-btn {
+            display: none !important;
+        }
+
+        body.mode-delete .edit-btn {
+            display: none !important;
+        }
+
+
+        .manage-container {
+            width: 95%;
+            max-width: 1500px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .manage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .manage-header h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .list-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .list-item {
+            display: grid;
+            grid-template-columns: 80px 1fr 1fr 120px;
+            align-items: center;
+            padding: 1.25rem 2rem;
+            border-bottom: 1px solid var(--glass-border);
+            transition: all 0.2s ease;
+            justify-items: center;
+        }
+
+        .list-item:last-child {
+            border-bottom: none;
+        }
+
+        .list-item:hover {
+            background: var(--bg-dark);
+        }
+
+        .list-header {
+            background: var(--bg-dark);
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            justify-items: center;
+        }
+
+        .item-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            object-fit: cover;
+        }
+
+        .item-name {
+            font-weight: 700;
+            color: var(--text-main);
+            font-size: 1rem;
+        }
+
+        .item-desc {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+        }
+
+        .action-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid var(--glass-border);
+            background: white;
+            padding: 0;
+            text-decoration: none;
+        }
+
+        .action-btn i,
+        .action-btn svg {
+            width: 18px !important;
+            height: 18px !important;
+            stroke-width: 2.5px !important;
+        }
+
+        .edit-btn {
+            color: var(--primary);
+        }
+
+        .edit-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .delete-btn {
+            color: #ef4444;
+        }
+
+        .delete-btn:hover {
+            background: #ef4444;
+            color: white;
+            border-color: #ef4444;
+        }
+
+        /* Mobile Responsive - Professional Vertical Cards */
+        @media (max-width: 768px) {
+            .header {
+                display: none !important;
+            }
+
+            .manage-container {
+                padding: 0 1rem !important;
+                margin: 0.5rem auto !important;
+            }
+
+            .manage-header {
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                gap: 0.75rem !important;
+                margin-bottom: 2rem !important;
+                padding: 0.5rem 0 1rem !important;
+                border-bottom: 1px solid var(--glass-border);
+            }
+
+            .manage-header h1 {
+                font-size: 1.25rem !important;
+                font-weight: 800 !important;
+                margin: 0 !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 0.6rem !important;
+                color: var(--text-main) !important;
+            }
+
+            .manage-header h1 i,
+            .manage-header h1 svg,
+            .submit-btn i,
+            .submit-btn svg,
+            .action-btn i,
+            .action-btn svg {
+                display: inline-flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                width: 18px !important;
+                height: 18px !important;
+                stroke-width: 2.5 !important;
+                vertical-align: middle !important;
+            }
+
+            .manage-header h1 i,
+            .manage-header h1 svg {
+                width: 22px !important;
+                height: 22px !important;
+            }
+
+            .manage-header .submit-btn {
+                width: 38px !important;
+                height: 38px !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                border-radius: 12px !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 0 !important;
+                flex-shrink: 0 !important;
+            }
+
+            /* Hide button text on mobile, show only icon */
+            .manage-header .submit-btn .btn-text {
+                display: none !important;
+            }
+
+            .manage-header .submit-btn i,
+            .manage-header .submit-btn svg {
+                width: 20px !important;
+                height: 20px !important;
+            }
+
+            /* Aggressively hide table header on mobile */
+            .list-header {
+                display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: hidden !important;
+                opacity: 0 !important;
+                pointer-events: none !important;
+                border: none !important;
+            }
+
+            .list-card {
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+
+            .list-item {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                padding: 1.5rem 1rem !important;
+                margin-bottom: 1rem !important;
+                background: var(--bg-card) !important;
+                border: 1px solid var(--glass-border) !important;
+                border-radius: 20px !important;
+                text-align: center !important;
+                gap: 1rem !important;
+            }
+
+            .item-icon {
+                width: 64px !important;
+                height: 64px !important;
+                font-size: 1.75rem !important;
+                border-radius: 16px !important;
+                margin-bottom: 0.5rem !important;
+            }
+
+            /* Center the icon container */
+            .list-item>div:first-child {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                width: 100% !important;
+            }
+
+            /* Add label above icon */
+            .list-item>div:first-child::before {
+                content: 'Category Icon';
+                display: block;
+                font-size: 0.65rem;
+                text-transform: uppercase;
+                color: #94a3b8;
+                font-weight: 800;
+                margin-bottom: 0.75rem;
+                letter-spacing: 0.05em;
+            }
+
+            .item-name {
+                font-size: 1.1rem !important;
+                margin-bottom: 0.25rem !important;
+            }
+
+            /* Add label above category name */
+            .list-item>div:nth-child(2)::before {
+                content: 'Category Name';
+                display: block;
+                font-size: 0.65rem;
+                text-transform: uppercase;
+                color: #94a3b8;
+                font-weight: 800;
+                margin-bottom: 0.5rem;
+                letter-spacing: 0.05em;
+            }
+
+            .item-desc {
+                font-size: 0.85rem !important;
+                line-height: 1.4 !important;
+                color: var(--text-muted) !important;
+                margin-bottom: 0.5rem !important;
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                -webkit-line-clamp: unset !important;
+                line-clamp: unset !important;
+                overflow: visible !important;
+                width: 100% !important;
+            }
+
+            /* Add label above description */
+            .list-item>div:nth-child(3)::before {
+                content: 'Description';
+                display: block;
+                font-size: 0.65rem;
+                text-transform: uppercase;
+                color: #94a3b8;
+                font-weight: 800;
+                margin-bottom: 0.5rem;
+                letter-spacing: 0.05em;
+            }
+
+            .actions {
+                width: 100% !important;
+                padding-top: 1rem !important;
+                margin-top: 0.5rem !important;
+                border-top: 1px solid var(--glass-border) !important;
+                justify-content: center !important;
+                gap: 1rem !important;
+            }
+
+            .action-btn {
+                width: 44px !important;
+                height: 44px !important;
+                border-radius: 12px !important;
+            }
+
+            /* Ensure action button icons are visible - CRITICAL */
+            .list-item .action-btn i,
+            .list-item .action-btn svg,
+            .list-item .actions .action-btn i,
+            .list-item .actions .action-btn svg,
+            .list-item .edit-btn i,
+            .list-item .edit-btn svg,
+            .list-item .delete-btn i,
+            .list-item .delete-btn svg {
+                display: inline-flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                width: 22px !important;
+                height: 22px !important;
+                stroke-width: 2.5 !important;
+                flex-shrink: 0 !important;
+            }
+
+            /* Ensure edit button icon has color */
+            .list-item .edit-btn i,
+            .list-item .edit-btn svg {
+                color: var(--primary) !important;
+                stroke: currentColor !important;
+            }
+
+            /* Ensure delete button icon has color */
+            .list-item .delete-btn i,
+            .list-item .delete-btn svg {
+                color: #ef4444 !important;
+                stroke: currentColor !important;
+            }
+
+            /* Modal Responsive Fixes - More Compact */
+            .modal-content.wide {
+                width: 95% !important;
+                padding: 1.5rem 1.25rem 2rem !important;
+            }
+
+            .modal-content::before {
+                margin: -0.75rem auto 1rem !important;
+                /* Closer handle */
+            }
+
+            .modal-header {
+                margin-bottom: 1.25rem !important;
+            }
+
+            .modal-title {
+                font-size: 1.25rem !important;
+                /* Smaller */
+            }
+
+            .modal-header p {
+                font-size: 0.75rem !important;
+                /* Smaller */
+            }
+
+            #delete-modal-content {
+                grid-template-columns: 1fr !important;
+                gap: 1rem !important;
+                /* Tighter */
+                text-align: center;
+            }
+
+            #delete-modal-content>div {
+                text-align: center !important;
+            }
+
+            #delete-modal-content img,
+            #delete-modal-content .item-icon {
+                margin: 0 auto !important;
+                width: 80px !important;
+                /* Reduced from 100px */
+                height: 80px !important;
+                /* Reduced from 100px */
+                font-size: 1.5rem !important;
+            }
+
+            #delete-modal-content p {
+                font-size: 0.85rem !important;
+            }
+
+            #delete-modal-content label {
+                font-size: 0.65rem !important;
+                margin-bottom: 0.2rem !important;
+            }
+
+            .form-group {
+                margin-bottom: 1rem !important;
+            }
+
+            .modal-footer {
+                padding: 1rem 0 0 !important;
+                flex-direction: column !important;
+                /* Stacked */
+                background: transparent !important;
+                border: none !important;
+                gap: 0.75rem !important;
+                align-items: center !important;
+            }
+
+            .modal-footer button {
+                width: 70% !important;
+                /* Reduced width */
+                min-width: 160px !important;
+                margin: 0 !important;
+                height: 38px !important;
+                padding: 0 !important;
+                font-size: 0.8rem !important;
+                border-radius: 10px !important;
+                white-space: nowrap !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Mobile Menu Toggle Button -->
+
+
+        <!-- Sidebar -->
+        <!-- Sidebar Fragment -->
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header with Search -->
+            <div th:replace="~{fragments/header :: header}"></div>
+
+            <div class="manage-container">
+                <div class="manage-header">
+                    <h1 id="page-heading">
+                        <i id="heading-icon" data-lucide="layers" style="color: var(--primary);"></i>
+                        <span id="heading-text">Manage Categories</span>
+                    </h1>
+                    <a href="/create-category" class="submit-btn"
+                        style="width: fit-content; padding: 0.6rem 1.25rem; margin: 0; font-size: 0.875rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none; border-radius: 12px; height: 42px;">
+                        <i data-lucide="plus" size="18"></i>
+                        <span class="btn-text">Create Category</span>
+                    </a>
+                </div>
+
+                <div class="list-card">
+                    <div class="list-item list-header">
+                        <div>Icon</div>
+                        <div>Category Name</div>
+                        <div>Description</div>
+                        <div style="text-align: right;">Actions</div>
+                    </div>
+
+                    <div th:each="cat : ${categories}" class="list-item">
+                        <div>
+                            <img th:if="${cat.catIconBase64}" th:src="'data:image/png;base64,' + ${cat.catIconBase64}"
+                                class="item-icon">
+                            <div th:unless="${cat.catIconBase64}" class="item-icon"
+                                th:style="'background:' + (${cat.catColor} ?: '#4f46e5') + '20; color:' + (${cat.catColor} ?: '#4f46e5')">
+                                <i data-lucide="layers"></i>
+                            </div>
+                        </div>
+                        <div class="item-name" th:text="${cat.catName}">Category Name</div>
+                        <div class="item-desc" th:text="${cat.description}">Description</div>
+                        <div class="actions">
+                            <a th:href="@{'/update-category/' + ${cat.categId}}" class="action-btn edit-btn"
+                                title="Update Category">
+                                <i data-lucide="pencil"></i>
+                            </a>
+                            <button th:onclick="'openDeleteModal(' + ${cat.categId} + ')'" class="action-btn delete-btn"
+                                title="Delete Category">
+                                <i data-lucide="trash-2"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="empty-state-container" th:if="${#lists.isEmpty(categories)}"
+                        style="padding: 5rem 2rem; text-align: center; color: var(--text-muted);">
+                        <i id="empty-icon" data-lucide="inbox" size="56"
+                            style="margin-bottom: 1.5rem; opacity: 0.15; color: var(--primary);"></i>
+                        <h3 id="empty-title"
+                            style="color: var(--text-main); font-weight: 700; margin-bottom: 0.5rem; font-size: 1.25rem;">
+                            No Categories Found</h3>
+                        <p id="empty-msg"
+                            style="max-width: 400px; margin: 0 auto; line-height: 1.6; font-size: 0.95rem;">It looks
+                            like there are no categories matching this criteria. Start by creating a new one!</p>
+                        <a href="/create-category" class="submit-btn"
+                            style="width: auto; margin-top: 2rem; display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; text-decoration: none;">
+                            <i data-lucide="plus" size="18"></i>
+                            Create Your First Category
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!-- Footer Fragment -->
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </main>
+    </div>
+
+    <!-- Enhanced Delete Modal (Same as Update Page Feel) -->
+    <div class="modal-overlay" id="delete-category-modal">
+        <div class="modal-content wide" style="max-width: 700px;">
+            <div class="modal-header">
+                <div style="display: flex; align-items: center; gap: 1rem; color: #ef4444;">
+                    <i data-lucide="trash-2" size="28"></i>
+                    <div>
+                        <h2 class="modal-title" style="color: var(--text-main);">Delete Category</h2>
+                        <p style="font-size: 0.85rem; color: var(--text-muted);">This action will also delete all events
+                            in this category.</p>
+                    </div>
+                </div>
+                <button class="close-btn" onclick="closeDeleteModal()">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <div id="delete-modal-content"
+                    style="display: grid; grid-template-columns: 180px 1fr; gap: 2rem; align-items: start;">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <div class="modal-footer"
+                style="padding: 1.5rem 2.5rem; border-top: 1px solid var(--glass-border); display: flex; justify-content: flex-end; gap: 1rem; background: var(--bg-dark);">
+                <button class="btn-secondary" onclick="closeDeleteModal()"
+                    style="border-radius: 12px; padding: 0.75rem 1.5rem;">Keep Category</button>
+                <button class="submit-btn" id="final-delete-btn"
+                    style="background: #ef4444; border-radius: 12px; padding: 0.75rem 1.5rem; width: auto; margin: 0;">
+                    Confirm & Delete All
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script th:src="@{/js/script.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // mode handling
+            const urlParams = new URLSearchParams(window.location.search);
+            const mode = urlParams.get('mode') || 'update';
+            document.body.classList.add('mode-' + mode);
+
+            // Update Heading based on mode
+            const headingText = document.getElementById('heading-text');
+            const headingIcon = document.getElementById('heading-icon');
+            if (mode === 'update') {
+                headingText.innerText = "Update Categories";
+                headingIcon.outerHTML = '<i id="heading-icon" data-lucide="pencil" style="color: var(--primary);"></i>';
+            } else if (mode === 'delete') {
+                headingText.innerText = "Delete Categories";
+                headingIcon.outerHTML = '<i id="heading-icon" data-lucide="trash-2" style="color: var(--primary);"></i>';
+            }
+
+            lucide.createIcons();
+            checkEmptyState(mode);
+
+            // Force icon refresh after a short delay to ensure all icons render
+            setTimeout(() => {
+                if (window.lucide) {
+                    lucide.createIcons();
+                }
+            }, 100);
+        });
+
+        function checkEmptyState(mode) {
+            const items = document.querySelectorAll('.list-item:not(.list-header)');
+            let visibleCount = 0;
+            items.forEach(item => {
+                if (window.getComputedStyle(item).display !== 'none') {
+                    visibleCount++;
+                }
+            });
+
+            if (visibleCount === 0) {
+                const container = document.getElementById('empty-state-container');
+                const title = document.getElementById('empty-title');
+                const msg = document.getElementById('empty-msg');
+                const icon = document.getElementById('empty-icon');
+
+                container.style.display = 'block';
+                document.querySelector('.list-header').style.display = 'none';
+
+                if (mode === 'update') {
+                    title.innerText = "No Categories for Update";
+                    msg.innerText = "You haven't created any categories yet. Create one to begin organizing your events.";
+                    icon.setAttribute('data-lucide', 'pencil-line');
+                } else if (mode === 'delete') {
+                    title.innerText = "No Categories to Delete";
+                    msg.innerText = "Your category list is currently empty. There are no records available for permanent removal.";
+                    icon.setAttribute('data-lucide', 'trash-2');
+                }
+                lucide.createIcons();
+            }
+        }
+
+        let currentDeleteId = null;
+
+        async function openDeleteModal(id) {
+            currentDeleteId = id;
+            const modal = document.getElementById('delete-category-modal');
+            const content = document.getElementById('delete-modal-content');
+
+            content.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 2rem;"><p>Loading category details...</p></div>';
+            modal.classList.add('active');
+
+            try {
+                const response = await fetchWithAuth(`/api/categories/get/${id}`);
+                const cat = await response.json();
+
+                content.innerHTML = `
+                    <div>
+                        <label style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; display: block; margin-bottom: 0.5rem;">Icon Preview</label>
+                        ${cat.catIconBase64 ?
+                        `<img src="data:image/png;base64,${cat.catIconBase64}" style="width: 100%; height: 160px; object-fit: contain; border-radius: 12px; background: var(--bg-card); padding: 1rem; border: 1px solid var(--glass-border);">` :
+                        `<div style="width: 100%; height: 160px; background: ${cat.catColor || '#4f46e5'}20; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: ${cat.catColor || '#4f46e5'}; border: 1px solid ${cat.catColor || '#4f46e5'}40;"><i data-lucide="layers" size="48"></i></div>`}
+                        <div style="margin-top: 1rem; display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem; background: var(--bg-dark); border-radius: 8px;">
+                            <div style="width: 20px; height: 20px; border-radius: 4px; background: ${cat.catColor}"></div>
+                            <span style="font-family: monospace; font-size: 0.8rem;">${cat.catColor}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-group" style="margin-bottom: 1.5rem;">
+                            <label style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Category Name</label>
+                            <p style="font-size: 1.25rem; font-weight: 800; color: var(--text-main);">${cat.catName}</p>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1.5rem;">
+                            <label style="color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase;">Description</label>
+                            <p style="font-size: 0.9rem; line-height: 1.6; color: var(--text-muted);">${cat.description || 'No description provided.'}</p>
+                        </div>
+                        <div style="padding: 1rem; background: rgba(239, 68, 68, 0.05); border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.1);">
+                            <p style="font-size: 0.8rem; color: #ef4444; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                                <i data-lucide="alert-circle" size="14"></i>
+                                DANGER ZONE
+                            </p>
+                            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">Associated events will be hidden from the platform, but all historical data will remain safe in the database.</p>
+                        </div>
+                    </div>
+                `;
+                lucide.createIcons();
+            } catch (error) {
+                content.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: #ef4444;"><p>Failed to load category details.</p></div>';
+            }
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('delete-category-modal').classList.remove('active');
+            currentDeleteId = null;
+        }
+
+        document.getElementById('final-delete-btn').addEventListener('click', async () => {
+            if (!currentDeleteId) return;
+
+            const btn = document.getElementById('final-delete-btn');
+            btn.disabled = true;
+            btn.innerText = "Deleting...";
+
+            try {
+                const response = await fetchWithAuth(`/api/categories/delete/${currentDeleteId}`, { method: 'DELETE' });
+                if (response.ok) {
+                    showToast("Category Deleted", "The category and all its associated events have been permanently removed.", "success");
+                    setTimeout(() => location.href = "/manage-categories?mode=delete", 1500);
+                } else {
+                    showToast("Action Failed", "Failed to delete the category. It may have active dependencies.", "error");
+                    btn.disabled = false;
+                    btn.innerText = "Confirm & Delete All";
+                }
+            } catch (error) {
+                showToast("Action Failed", "A network error occurred while trying to delete the category.", "error");
+                btn.disabled = false;
+                btn.innerText = "Confirm & Delete All";
+            }
+        });
+    </script>
+</body>
+
+</html>

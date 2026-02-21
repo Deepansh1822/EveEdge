@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support | EveEdge</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .support-hero {
+            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-dark) 100%);
+            padding: 3rem 1.5rem;
+            text-align: center;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--glass-border);
+        }
+
+        .support-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .support-card {
+            background: var(--bg-card);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .support-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .support-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--primary-glow);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+        }
+
+        .support-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-main);
+        }
+
+        .support-card p {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            max-width: 300px;
+        }
+
+        .ticket-btn {
+            background: var(--primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .ticket-btn:hover {
+            background: #4338ca;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .community-section {
+            background: var(--bg-card);
+            padding: 3rem;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .community-logos {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .community-logo {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .community-logo:hover {
+            color: var(--primary);
+            background: var(--primary-glow);
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            .support-hero {
+                padding: 2.5rem 1rem;
+                border-radius: 12px;
+            }
+
+            .support-hero h1 {
+                font-size: 2rem;
+            }
+
+            .support-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .community-section {
+                padding: 2rem 1.5rem;
+                border-radius: 12px;
+            }
+
+            .community-logos {
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header with Search -->
+            <div th:replace="~{fragments/header :: header}"></div>
+
+            <section class="support-hero">
+                <h1>Support Center</h1>
+                <p style="color: var(--text-muted); margin-top: 0.5rem;">How can we help? Find troubleshooting guides
+                    and connect with our team.</p>
+            </section>
+
+            <div class="support-grid">
+                <!-- Create Ticket -->
+                <div class="support-card" onclick="openModal('ticket-modal')">
+                    <div class="support-icon">
+                        <i class="fa-solid fa-ticket"></i>
+                    </div>
+                    <h3>Create a Ticket</h3>
+                    <p>Report a bug, request a feature, or get technical assistance directly from our team.</p>
+                    <button class="ticket-btn" onclick="openModal('ticket-modal')">
+                        <i class="fa-solid fa-circle-plus" style="margin-right: 5px;"></i>
+                        New Ticket
+                    </button>
+                </div>
+
+                <!-- Live Chat -->
+                <div class="support-card">
+                    <div class="support-icon" style="background: rgba(8, 145, 178, 0.1); color: var(--secondary);">
+                        <i class="fa-solid fa-comments"></i>
+                    </div>
+                    <h3>Live Chat</h3>
+                    <p>Chat with a support agent in real-time for immediate assistance. Available 24/7.</p>
+                    <button class="ticket-btn" style="background: var(--secondary);" disabled>
+                        <i class="fa-solid fa-message" style="margin-right: 5px;"></i>
+                        Coming Soon...
+                    </button>
+                </div>
+            </div>
+
+            <section class="community-section">
+                <h2>Join the Community</h2>
+                <p
+                    style="color: var(--text-muted); margin-top: 0.5rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+                    Connect with other EveEdge users, share tips, and get advice from the community forums.</p>
+
+                <div class="community-logos">
+                    <div class="community-logo"><i class="fa-brands fa-slack"></i></div>
+                    <div class="community-logo"><i class="fa-brands fa-discord"></i></div>
+                    <div class="community-logo"><i class="fa-brands fa-github"></i></div>
+                    <div class="community-logo"><i class="fa-brands fa-square-x-twitter"></i></div>
+                </div>
+            </section>
+
+            <!-- Support Ticket Modal -->
+            <div class="modal-overlay" id="ticket-modal">
+                <div class="modal-content">
+                    <div class="modal-header"
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h2 class="modal-title" style="font-family: 'Outfit', sans-serif; font-weight: 700;">Submit a
+                            Ticket</h2>
+                        <button class="close-modal" onclick="closeModal('ticket-modal')"
+                            style="background: none; border: none; cursor: pointer;">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <form id="ticket-form">
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label
+                                style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem;">Email
+                                Address</label>
+                            <input type="email" id="email" placeholder="your@email.com" required
+                                style="width: 100%; padding: 0.8rem; border-radius: 12px; border: 1px solid var(--glass-border); background: #f8fafc;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label
+                                style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem;">Issue
+                                Type</label>
+                            <select id="issueType"
+                                style="width: 100%; padding: 0.8rem; border-radius: 12px; border: 1px solid var(--glass-border); background: #f8fafc;">
+                                <option>Technical Issue</option>
+                                <option>Billing Question</option>
+                                <option>Feature Request</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label
+                                style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem;">Subject</label>
+                            <input type="text" id="subject" placeholder="Brief description" required
+                                style="width: 100%; padding: 0.8rem; border-radius: 12px; border: 1px solid var(--glass-border); background: #f8fafc;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1.5rem;">
+                            <label
+                                style="display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem;">Details</label>
+                            <textarea id="details" rows="4" placeholder="Describe your issue..." required
+                                style="width: 100%; padding: 0.8rem; border-radius: 12px; border: 1px solid var(--glass-border); resize: vertical; background: #f8fafc;"></textarea>
+                        </div>
+                        <button type="submit" class="submit-btn"
+                            style="width: 100%; padding: 1rem; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);">Submit
+                            Ticket</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </main>
+    </div>
+
+    <script th:src="@{/js/script.js}"></script>
+    <script>
+        lucide.createIcons();
+
+        // Close on outside click
+        document.getElementById('ticket-modal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeModal('ticket-modal');
+            }
+        });
+
+        document.getElementById('ticket-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const btn = this.querySelector('button[type="submit"]');
+            window.setButtonLoading(btn);
+
+            const data = {
+                email: document.getElementById('email').value,
+                issueType: document.getElementById('issueType').value,
+                subject: document.getElementById('subject').value,
+                details: document.getElementById('details').value
+            };
+
+            try {
+                const response = await fetch('/api/support', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    btn.innerHTML = '<i class="fa-solid fa-check" style="vertical-align: middle; margin-right: 5px;"></i> Ticket Submitted!';
+                    btn.style.background = '#10b981';
+
+                    setTimeout(() => {
+                        window.resetButtonLoading(btn);
+                        btn.style.background = '';
+                        this.reset();
+                        closeModal('ticket-modal');
+                        showToast("Ticket Submitted", "Your ticket has been submitted. Check your email for updates.", "success");
+                    }, 1000);
+                } else {
+                    const errorData = await response.json();
+                    showToast("Error", "Failed to submit ticket: " + (errorData.error || "Unknown error"), "error");
+                    window.resetButtonLoading(btn);
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                showToast("Error", "Network error occurred.", "error");
+                window.resetButtonLoading(btn);
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+    <div th:fragment="sidebar">
+        <style>
+            /* Mobile-specific chevron positioning */
+            @media (max-width: 768px) {
+                .chevron-icon {
+                    margin-right: 0.5rem !important;
+                    flex-shrink: 0 !important;
+                }
+
+                .nav-item.has-children {
+                    padding-right: 0.75rem !important;
+                }
+            }
+        </style>
+        <!-- Mobile Header -->
+        <div class="mobile-header">
+            <a href="/" class="mobile-logo"
+                style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 0.75rem;">
+                <img th:src="@{/images/EveEdge-Logo.png}" alt="EveEdge"
+                    style="height: 32px; width: auto; object-fit: contain;">
+            </a>
+            <div style="display: flex; align-items: center; gap: 1.25rem;">
+                <a href="/cart" style="position: relative; color: inherit; display: flex; align-items: center;">
+                    <i data-lucide="shopping-cart" style="width: 22px; height: 22px;"></i>
+                    <span id="mobile-cart-count-badge" class="cart-badge"
+                        style="display: none; top: -8px; right: -8px; width: 18px; height: 18px; font-size: 0.65rem;">0</span>
+                </a>
+                <button class="mobile-menu-toggle" id="mobile-toggle-btn">
+                    <i data-lucide="menu"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Backdrop -->
+        <div class="mobile-backdrop" id="mobile-backdrop"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <button class="mobile-close-btn" id="mobile-close-btn" title="Close Menu">
+                <i data-lucide="chevron-left"></i>
+            </button>
+            <div class="sidebar-header-mobile">
+                <div class="logo" onclick="location.href='/'"
+                    style="cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                    <img th:src="@{/images/EveEdge-Logo.png}" alt="EveEdge"
+                        style="height: 40px; width: auto; object-fit: contain;">
+                </div>
+            </div>
+
+            <div class="logo desktop-only" onclick="location.href='/'"
+                style="cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 20px 0;">
+                <img th:src="@{/images/EveEdge-Logo.png}" alt="EveEdge"
+                    style="height: 50px; width: auto; object-fit: contain;">
+            </div>
+
+            <nav class="nav-links">
+                <a href="/" class="nav-item">
+                    <i data-lucide="layout-dashboard"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <!-- Categories - Simple link for users, expandable for admin -->
+                <div class="nav-group-nested">
+                    <div class="nav-item has-children admin-expandable" id="cat-toggle">
+                        <a href="/categories"
+                            style="display: flex; align-items: center; gap: 1rem; color: inherit; text-decoration: none; flex: 1;">
+                            <i data-lucide="layers"></i>
+                            <span>Categories</span>
+                        </a>
+                        <i data-lucide="chevron-right" class="chevron-icon admin-only"
+                            style="width: 14px; height: 14px;"></i>
+                    </div>
+                    <div class="sub-menu admin-only" id="cat-nested-menu">
+                        <a href="/create-category" class="sub-item">
+                            <i data-lucide="circle" style="width: 6px; height: 6px; opacity: 0.6;"></i>
+                            <span>Create</span>
+                        </a>
+                        <a href="/manage-categories?mode=update" class="sub-item">
+                            <i data-lucide="circle" style="width: 6px; height: 6px; opacity: 0.6;"></i>
+                            <span>Update</span>
+                        </a>
+                        <a href="/manage-categories?mode=delete" class="sub-item">
+                            <i data-lucide="circle" style="width: 6px; height: 6px; opacity: 0.6;"></i>
+                            <span>Delete</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Events - Simple link for users, expandable for admin -->
+                <div class="nav-group-nested">
+                    <div class="nav-item has-children admin-expandable" id="eve-toggle">
+                        <a href="/events"
+                            style="display: flex; align-items: center; gap: 1rem; color: inherit; text-decoration: none; flex: 1;">
+                            <i data-lucide="calendar"></i>
+                            <span>Events</span>
+                        </a>
+                        <i data-lucide="chevron-right" class="chevron-icon admin-only"
+                            style="width: 14px; height: 14px;"></i>
+                    </div>
+                    <div class="sub-menu admin-only" id="eve-nested-menu">
+                        <a href="/create-event" class="sub-item">
+                            <i data-lucide="circle" style="width: 6px; height: 6px; opacity: 0.6;"></i>
+                            <span>Create</span>
+                        </a>
+                        <a href="/manage-events?mode=update" class="sub-item">
+                            <i data-lucide="circle" style="width: 6px; height: 6px; opacity: 0.6;"></i>
+                            <span>Update</span>
+                        </a>
+                        <a href="/manage-events?mode=delete" class="sub-item">
+                            <i data-lucide="circle" style="width: 6px; height: 6px; opacity: 0.6;"></i>
+                            <span>Delete</span>
+                        </a>
+                        <a href="/manage-events?mode=cancel" class="sub-item">
+                            <i data-lucide="circle" style="width: 6px; height: 6px; opacity: 0.6;"></i>
+                            <span>Cancel</span>
+                        </a>
+                    </div>
+                </div>
+
+                <a href="/tickets" class="nav-item">
+                    <i data-lucide="ticket"></i>
+                    <span id="tickets-nav-label">Tickets</span>
+                </a>
+                <a href="/cart" class="nav-item">
+                    <div style="position: relative;">
+                        <i data-lucide="shopping-cart"></i>
+                        <span id="cart-count-badge" class="cart-badge" style="display: none;">0</span>
+                    </div>
+                    <span>Tickets Booking</span>
+                </a>
+
+                <!-- Pending Payments - Admin Only -->
+                <a href="/admin/pending-payments" class="nav-item admin-only">
+                    <i data-lucide="clock"></i>
+                    <span>Pending Payments</span>
+                </a>
+
+            </nav>
+
+            <script>
+                function applyUserVisibility() {
+                    try {
+                        const rolesStr = localStorage.getItem('userRoles');
+                        const roles = rolesStr ? JSON.parse(rolesStr) : [];
+                        const isAdminUser = Array.isArray(roles) && roles.some(role => role.authority === 'ROLE_ADMIN');
+
+                        if (!isAdminUser) {
+                            document.querySelectorAll('.admin-only').forEach(el => el.remove());
+                            document.querySelectorAll('.admin-expandable').forEach(el => {
+                                el.classList.remove('has-children');
+                                const icon = el.querySelector('.chevron-icon');
+                                if (icon) icon.remove();
+                            });
+                        }
+                    } catch (e) {
+                        console.error('Sidebar visibility error:', e);
+                    }
+                }
+
+                function highlightActiveLink() {
+                    const currentPath = window.location.pathname;
+                    document.querySelectorAll('.nav-item, .sub-item').forEach(link => {
+                        const href = link.getAttribute('href');
+                        if (href && (href === currentPath || (currentPath === '/' && href === '/home'))) {
+                            link.classList.add('active');
+                            const parentMenu = link.closest('.sub-menu');
+                            if (parentMenu) {
+                                parentMenu.classList.add('active');
+                                const toggle = parentMenu.previousElementSibling;
+                                if (toggle) toggle.classList.add('open');
+                            }
+                        }
+                    });
+                }
+
+                function initMobileMenu() {
+                    const sidebar = document.getElementById('sidebar');
+                    const toggleBtn = document.getElementById('mobile-toggle-btn');
+                    const closeBtn = document.getElementById('mobile-close-btn');
+                    const backdrop = document.getElementById('mobile-backdrop');
+
+                    if (!sidebar || !toggleBtn || !backdrop || !closeBtn) return;
+
+                    const toggleFn = (open) => {
+                        sidebar.classList.toggle('mobile-open', open);
+                        backdrop.classList.toggle('active', open);
+                        document.body.style.overflow = open ? 'hidden' : '';
+                    };
+
+                    toggleBtn.onclick = () => toggleFn(true);
+                    closeBtn.onclick = () => toggleFn(false);
+                    backdrop.onclick = () => toggleFn(false);
+
+                    document.querySelectorAll('.nav-item:not(.has-children), .sub-item').forEach(item => {
+                        item.addEventListener('click', () => {
+                            if (window.innerWidth <= 768) {
+                                toggleFn(false);
+                            }
+                        });
+                    });
+                }
+
+                function initDropdowns() {
+                    document.querySelectorAll('.has-children').forEach(toggle => {
+                        const chevron = toggle.querySelector('.chevron-icon');
+                        const subMenu = toggle.nextElementSibling;
+
+                        // Handle click on the whole container OR the chevron specifically
+                        const handleToggle = (e) => {
+                            // If user clicked the anchor specifically, let it navigate
+                            // (unless it's mobile and we want toggle only? No, desktop needs links)
+                            if (e.target.closest('a') && !e.target.closest('.chevron-icon')) {
+                                return; // Normal link behavior
+                            }
+
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            const isActive = subMenu.classList.toggle('active');
+                            toggle.classList.toggle('open', isActive);
+
+                            if (window.lucide) window.lucide.createIcons();
+                        };
+
+                        toggle.addEventListener('click', handleToggle);
+                        if (chevron) chevron.addEventListener('click', handleToggle);
+                    });
+                }
+
+                // Logout logic - Updated to use custom confirm
+                function handleLogout() {
+                    if (typeof showConfirm === 'function') {
+                        showConfirm('Are you sure you want to logout? All unsaved session data will be cleared.', async () => {
+                            localStorage.clear();
+                            window.location.href = '/login';
+                        });
+                    } else if (confirm('Are you sure you want to logout?')) {
+                        localStorage.clear();
+                        window.location.href = '/login';
+                    }
+                }
+
+                // Run initialization with multiple triggers for reliability
+                const initSidebar = () => {
+                    applyUserVisibility();
+                    highlightActiveLink();
+                    initMobileMenu();
+                    initDropdowns();
+                    if (window.lucide) {
+                        try { window.lucide.createIcons(); } catch (e) { }
+                    }
+                };
+
+                // Immediate attempt
+                initSidebar();
+
+                // DOMContentLoaded attempt
+                document.addEventListener('DOMContentLoaded', initSidebar);
+
+                // Final fallback for icons
+                window.onload = () => { if (window.lucide) window.lucide.createIcons(); };
+            </script>
+        </aside>
+
+        <!-- Global Confirmation Modal -->
+        <div class="modal-overlay" id="confirm-modal">
+            <div class="modal-content" style="max-width: 400px; padding: 0;">
+                <div class="confirm-modal-content">
+                    <div class="confirm-icon">
+                        <i data-lucide="alert-triangle" size="32"></i>
+                    </div>
+                    <h3 class="confirm-title">Are you sure?</h3>
+                    <p class="confirm-text" id="confirm-modal-text">This action cannot be undone.</p>
+                    <div class="confirm-actions">
+                        <button class="btn-confirm cancel" id="confirm-cancel-btn">Cancel</button>
+                        <button class="btn-confirm danger" id="confirm-ok-btn">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="toast-container" id="toast-container"></div>
+    </div>
+
+
+</body>
+
+</html>

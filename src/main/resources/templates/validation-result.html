@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Validation | EveEdge</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --primary: #4f46e5;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .validation-card {
+            background: var(--card);
+            width: 100%;
+            max-width: 400px;
+            border-radius: 24px;
+            padding: 40px 30px;
+            text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Status Banner */
+        .status-icon-wrapper {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .status-icon-wrapper i {
+            width: 40px;
+            height: 40px;
+            stroke-width: 3px;
+        }
+
+        .status-success {
+            background: #d1fae5;
+            color: var(--success);
+        }
+
+        .status-error {
+            background: #fee2e2;
+            color: var(--error);
+        }
+
+        .status-warning {
+            background: #fef3c7;
+            color: var(--warning);
+        }
+
+        .status-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .status-message {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        /* Ticket Details */
+        .ticket-details {
+            background: #f1f5f9;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: left;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .detail-row:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .detail-value {
+            font-size: 0.9rem;
+            color: var(--text-main);
+            font-weight: 700;
+            text-align: right;
+        }
+
+        .home-btn {
+            margin-top: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 10px 20px;
+            background: #eef2ff;
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+
+        .home-btn:hover {
+            background: #e0e7ff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Valid / Success -->
+    <div class="validation-card" th:if="${valid}">
+        <div class="status-icon-wrapper status-success">
+            <i data-lucide="check"></i>
+        </div>
+        <h1 class="status-title">Access Granted</h1>
+        <p class="status-message" th:text="${message}">Ticket successfully validated.</p>
+
+        <div class="ticket-details">
+            <div class="detail-row">
+                <span class="detail-label">Attendee</span>
+                <span class="detail-value" th:text="${booking.customerName}">-</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Event</span>
+                <span class="detail-value" th:text="${booking.event.title}">-</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Ticket Type</span>
+                <span class="detail-value" th:text="${booking.userType}">-</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Order ID</span>
+                <span class="detail-value">#ORD-<span th:text="${booking.bookingId}"></span></span>
+            </div>
+        </div>
+
+        <a href="/" class="home-btn">
+            <i data-lucide="home" size="16"></i> Go to Home
+        </a>
+    </div>
+
+    <!-- Invalid / Error / Warning -->
+    <div class="validation-card" th:unless="${valid}">
+        <div class="status-icon-wrapper status-error" th:classappend="${alreadyCheckedIn} ? 'status-warning' : ''">
+            <i data-lucide="x" th:unless="${alreadyCheckedIn}"></i>
+            <i data-lucide="alert-triangle" th:if="${alreadyCheckedIn}"></i>
+        </div>
+
+        <h1 class="status-title" th:text="${alreadyCheckedIn} ? 'Already Used' : 'Access Denied'">Access Denied</h1>
+        <p class="status-message" th:text="${message}">Invalid Ticket.</p>
+
+        <div class="ticket-details" th:if="${booking != null}">
+            <div class="detail-row">
+                <span class="detail-label">Scanned At</span>
+                <span class="detail-value"
+                    th:text="${#temporals.format(booking.checkInAt, 'dd-MM-yyyy HH:mm')}">Unknown</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Attendee</span>
+                <span class="detail-value" th:text="${booking.customerName}">-</span>
+            </div>
+        </div>
+
+        <a href="/" class="home-btn">
+            <i data-lucide="home" size="16"></i> Go to Home
+        </a>
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>

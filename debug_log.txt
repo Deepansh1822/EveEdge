@@ -1,0 +1,90 @@
+Tue Feb 03 20:14:49 IST 2026: addBooking called for: deepanshshakya987@gmail.com
+Tue Feb 03 20:14:50 IST 2026: Executing Online Payment path for deepanshshakya987@gmail.com
+Tue Feb 03 20:14:50 IST 2026: [EMAIL] sendBookingConfirmationWithTicket START for: deepanshshakya987@gmail.com
+Tue Feb 03 20:14:51 IST 2026: [EMAIL] CRITICAL ERROR: Element not allowed.
+Tue Feb 03 20:21:53 IST 2026: addBooking called for: deepanshshakya987@gmail.com
+Tue Feb 03 20:21:53 IST 2026: Executing Online Payment path for deepanshshakya987@gmail.com
+Tue Feb 03 20:21:53 IST 2026: [EMAIL] sendBookingConfirmationWithTicket START for: deepanshshakya987@gmail.com
+Tue Feb 03 20:22:03 IST 2026: [EMAIL] Email sent successfully to deepanshshakya987@gmail.com
+Tue Feb 03 20:35:18 IST 2026: [EMAIL] sendBookingConfirmationWithTicket START for: deepanshshakya987@gmail.com
+Tue Feb 03 20:35:26 IST 2026: [EMAIL] Email sent successfully to deepanshshakya987@gmail.com
+Tue Feb 03 20:35:26 IST 2026: [EMAIL] sendBookingConfirmationWithTicket START for: deepanshshakya987@gmail.com
+Tue Feb 03 20:35:31 IST 2026: [EMAIL] Email sent successfully to deepanshshakya987@gmail.com
+Tue Feb 03 20:35:31 IST 2026: [EMAIL] sendBookingConfirmationWithTicket START for: deepanshshakya987@gmail.com
+Tue Feb 03 20:35:37 IST 2026: [EMAIL] Email sent successfully to deepanshshakya987@gmail.com
+Tue Feb 03 20:35:37 IST 2026: [EMAIL] sendBookingConfirmationWithTicket START for: deepanshshakya987@gmail.com
+Tue Feb 03 20:35:42 IST 2026: [EMAIL] Email sent successfully to deepanshshakya987@gmail.com
+Tue Feb 03 20:35:42 IST 2026: [EMAIL] sendBookingConfirmationWithTicket START for: deepanshshakya987@gmail.com
+Tue Feb 03 20:35:46 IST 2026: [EMAIL] Email sent successfully to deepanshshakya987@gmail.com
+Tue Feb 03 20:35:46 IST 2026: [EMAIL] sendBookingConfirmationWithTicket START for: romancena27@gmail.com
+Tue Feb 03 20:35:52 IST 2026: [EMAIL] Email sent successfully to romancena27@gmail.com
+Tue Feb 03 20:35:52 IST 2026: [EMAIL] sendBookingConfirmationWithTicket START for: cenaroman27@gmail.com
+Tue Feb 03 20:35:57 IST 2026: [EMAIL] Email sent successfully to cenaroman27@gmail.com
+Tue Feb 03 20:35:57 IST 2026: [EMAIL] sendBookingConfirmationWithTicket START for: deepanshshakya987@gmail.com
+Tue Feb 03 20:36:03 IST 2026: [EMAIL] Email sent successfully to deepanshshakya987@gmail.com
+Tue Feb 03 20:36:03 IST 2026: [EMAIL] sendBookingConfirmationWithTicket START for: deepanshshakya987@gmail.com
+Tue Feb 03 20:36:08 IST 2026: [EMAIL] Email sent successfully to deepanshshakya987@gmail.com
+Tue Feb 03 20:36:08 IST 2026: [EMAIL] sendBookingConfirmationWithTicket START for: deepanshshakya987@gmail.com
+Tue Feb 03 20:36:12 IST 2026: [EMAIL] Email sent successfully to deepanshshakya987@gmail.com
+Tue Feb 03 20:36:12 IST 2026: [EMAIL] sendBookingConfirmationWithTicket START for: deepanshshakya987@gmail.com
+Tue Feb 03 20:36:17 IST 2026: [EMAIL] Email sent successfully to deepanshshakya987@gmail.com
+Tue Feb 03 20:36:17 IST 2026: [EMAIL] sendBookingConfirmationWithTicket START for: deepanshshakya987@gmail.com
+Tue Feb 03 20:36:21 IST 2026: [EMAIL] Email sent successfully to deepanshshakya987@gmail.com
+Tue Feb 03 20:36:21 IST 2026: [EMAIL] sendBookingConfirmationWithTicket START for: deepanshshakya987@gmail.com
+Tue Feb 03 20:36:26 IST 2026: [EMAIL] Email sent successfully to deepanshshakya987@gmail.com
+Tue Feb 03 20:40:36 IST 2026: addBooking called for: deepanshshakya987@gmail.com
+Tue Feb 03 20:40:36 IST 2026: Executing Online Payment path for deepanshshakya987@gmail.com
+Tue Feb 03 20:40:36 IST 2026: [EMAIL] sendBookingConfirmationWithTicket START for: deepanshshakya987@gmail.com
+Tue Feb 03 20:40:41 IST 2026: [EMAIL] Email sent successfully to deepanshshakya987@gmail.com
+Tue Feb 03 20:49:30 IST 2026: addBooking called for: cenaroman27@gmail.com
+Tue Feb 03 20:49:30 IST 2026: Executing Online Payment path for cenaroman27@gmail.com
+Tue Feb 03 20:51:22 IST 2026: addBooking called for: cenaroman27@gmail.com
+Tue Feb 03 20:51:22 IST 2026: Executing Online Payment path for cenaroman27@gmail.com
+Tue Feb 03 21:06:14 IST 2026: addBooking called for: cenaroman27@gmail.com
+Tue Feb 03 21:06:14 IST 2026: Executing Online Payment path for cenaroman27@gmail.com
+Tue Feb 03 21:06:14 IST 2026: [EMAIL] sendBookingConfirmationWithTicket START for: cenaroman27@gmail.com
+Tue Feb 03 21:06:21 IST 2026: [EMAIL] Confirmation email sent successfully to cenaroman27@gmail.com
+Tue Feb 03 21:07:39 IST 2026: [EMAIL] sendEventUpdateWithTicket START for: deepanshshakya987@gmail.com (Type: Venue Changed)
+Tue Feb 03 21:07:44 IST 2026: [EMAIL] Update email sent successfully to deepanshshakya987@gmail.com
+Tue Feb 03 21:07:44 IST 2026: [EMAIL] sendEventUpdateWithTicket START for: romancena27@gmail.com (Type: Venue Changed)
+Tue Feb 03 21:07:48 IST 2026: [EMAIL] Update email sent successfully to romancena27@gmail.com
+Tue Feb 03 21:07:48 IST 2026: [EMAIL] sendEventUpdateWithTicket START for: cenaroman27@gmail.com (Type: Venue Changed)
+Tue Feb 03 21:07:53 IST 2026: [EMAIL] Update email sent successfully to cenaroman27@gmail.com
+Tue Feb 03 21:08:58 IST 2026: addBooking called for: cenaroman27@gmail.com
+Tue Feb 03 21:08:58 IST 2026: Executing Online Payment path for cenaroman27@gmail.com
+Tue Feb 03 21:08:58 IST 2026: [EMAIL] sendBookingConfirmationWithTicket START for: cenaroman27@gmail.com
+Tue Feb 03 21:09:03 IST 2026: [EMAIL] Confirmation email sent successfully to cenaroman27@gmail.com
+Tue Feb 03 21:10:24 IST 2026: [EMAIL] sendEventUpdateWithTicket START for: deepanshshakya987@gmail.com (Type: Event Rescheduled)
+Tue Feb 03 21:10:29 IST 2026: [EMAIL] Update email sent successfully to deepanshshakya987@gmail.com
+Tue Feb 03 21:10:29 IST 2026: [EMAIL] sendEventUpdateWithTicket START for: cenaroman27@gmail.com (Type: Event Rescheduled)
+Tue Feb 03 21:10:34 IST 2026: [EMAIL] Update email sent successfully to cenaroman27@gmail.com
+Tue Feb 03 21:57:11 IST 2026: [EMAIL] sendBookingConfirmationWithTicket START for: cenaroman27@gmail.com
+Tue Feb 03 21:57:17 IST 2026: [EMAIL] Confirmation email sent successfully to cenaroman27@gmail.com
+Tue Feb 03 21:59:51 IST 2026: addBooking called for: cenaroman27@gmail.com
+Tue Feb 03 21:59:52 IST 2026: Executing Online Payment path for cenaroman27@gmail.com
+Tue Feb 03 21:59:52 IST 2026: [EMAIL] sendBookingConfirmationWithTicket START for: cenaroman27@gmail.com
+Tue Feb 03 21:59:58 IST 2026: [EMAIL] Confirmation email sent successfully to cenaroman27@gmail.com
+Wed Feb 04 18:23:03 IST 2026: addBooking called for: cenaroman27@gmail.com
+Wed Feb 04 18:23:04 IST 2026: Executing Online Payment path for cenaroman27@gmail.com
+Wed Feb 04 18:23:04 IST 2026: [EMAIL] sendBookingConfirmationWithTicket START for: cenaroman27@gmail.com
+Wed Feb 04 18:23:13 IST 2026: [EMAIL] Confirmation email sent successfully to cenaroman27@gmail.com
+Wed Feb 04 18:24:48 IST 2026: addBooking called for: cenaroman27@gmail.com
+Wed Feb 04 18:24:49 IST 2026: Executing Online Payment path for cenaroman27@gmail.com
+Wed Feb 04 18:24:49 IST 2026: [EMAIL] sendBookingConfirmationWithTicket START for: cenaroman27@gmail.com
+Wed Feb 04 18:24:57 IST 2026: [EMAIL] Confirmation email sent successfully to cenaroman27@gmail.com
+Fri Feb 06 13:46:29 IST 2026: addBooking called for: deepanshshakya987@gmail.com
+Fri Feb 06 13:46:30 IST 2026: Executing Online Payment path for deepanshshakya987@gmail.com
+Fri Feb 06 13:46:30 IST 2026: [EMAIL] sendBookingConfirmationWithTicket START for: deepanshshakya987@gmail.com
+Fri Feb 06 13:46:36 IST 2026: [EMAIL] Confirmation email sent successfully to deepanshshakya987@gmail.com
+Fri Feb 06 13:47:20 IST 2026: addBooking called for: deepanshshakya987@gmail.com
+Fri Feb 06 13:47:58 IST 2026: [EMAIL] sendBookingConfirmationWithTicket START for: deepanshshakya987@gmail.com
+Fri Feb 06 13:48:03 IST 2026: [EMAIL] Confirmation email sent successfully to deepanshshakya987@gmail.com
+Fri Feb 06 13:54:35 IST 2026: addBooking called for: deepanshshakya987@gmail.com
+Sun Feb 08 20:43:31 IST 2026: addBooking called for: deepanshshakya987@gmail.com
+Sun Feb 08 20:43:32 IST 2026: Executing Online Payment path for deepanshshakya987@gmail.com
+Sun Feb 08 20:43:32 IST 2026: [EMAIL] sendBookingConfirmationWithTicket START for: deepanshshakya987@gmail.com
+Sun Feb 08 20:43:38 IST 2026: [EMAIL] Confirmation email sent successfully to deepanshshakya987@gmail.com
+Sun Feb 08 20:44:06 IST 2026: addBooking called for: deepanshshakya987@gmail.com
+Sun Feb 08 22:45:13 IST 2026: addBooking called for: deepanshshakya987@gmail.com
+Sat Feb 21 12:28:58 IST 2026: addBooking called for: deepanshshakya987@gmail.com
+Sat Feb 21 12:29:03 IST 2026: addBooking called for: deepanshshakya987@gmail.com

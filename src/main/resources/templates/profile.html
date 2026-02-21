@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile | EveEdge</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Tooltip Styles */
+        .info-tooltip-wrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            cursor: help;
+        }
+
+        .info-icon {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            transition: color 0.2s;
+        }
+
+        .info-tooltip-wrapper:hover .info-icon {
+            color: var(--primary);
+        }
+
+        .tooltip-text {
+            visibility: hidden;
+            width: 140px;
+            background-color: #1e293b;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 8px;
+            position: absolute;
+            z-index: 100;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.75rem;
+            font-weight: 400;
+            line-height: 1.4;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            pointer-events: none;
+        }
+
+        .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #1e293b transparent transparent transparent;
+        }
+
+        .info-tooltip-wrapper:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .profile-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .profile-image-wrapper {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #f1f5f9;
+            border: 4px solid white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-image-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #cbd5e1;
+        }
+
+        .upload-btn {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            text-align: center;
+            padding: 4px 0;
+            font-size: 0.75rem;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .profile-image-wrapper:hover .upload-btn {
+            opacity: 1;
+        }
+
+        .profile-info h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.8rem;
+            color: var(--text-main);
+            font-weight: 800;
+        }
+
+        .profile-info p {
+            margin: 0;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .profile-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .profile-container {
+                margin: 1rem;
+                padding: 1.5rem;
+                border-radius: 12px;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+
+            .profile-image-wrapper {
+                width: 100px;
+                height: 100px;
+            }
+
+            .profile-info h1 {
+                font-size: 1.5rem;
+            }
+
+            .profile-details {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .detail-item {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .detail-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .detail-value {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-main);
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+        }
+
+        .detail-value:disabled {
+            background: transparent;
+            color: var(--text-main);
+        }
+
+        .detail-value:not(:disabled) {
+            background: white;
+            border: 1px solid var(--primary);
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .action-buttons {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+        <main class="main-content">
+            <!-- Header with Search -->
+            <div th:replace="~{fragments/header :: header}"></div>
+
+            <div class="profile-container">
+                <div class="profile-header">
+                    <div class="profile-image-wrapper">
+                        <img id="profile-img" src="" alt="Profile" class="profile-image" style="display: none;">
+                        <div id="profile-placeholder" class="profile-image-placeholder">
+                            <i data-lucide="user" style="width: 48px; height: 48px;"></i>
+                        </div>
+                        <label for="image-upload" class="upload-btn">
+                            <i data-lucide="camera" style="width: 14px; height: 14px;"></i> Upload
+                        </label>
+                        <input type="file" id="image-upload" accept="image/*" style="display: none;">
+                    </div>
+                    <div class="profile-info">
+                        <h1 id="display-name">Loading...</h1>
+                        <p id="display-role">User Role</p>
+                    </div>
+                </div>
+
+                <form id="profile-form">
+                    <div class="profile-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Username</span>
+                            <input type="text" id="username" class="detail-value" disabled>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label" style="display: flex; align-items: center; gap: 6px;">
+                                Email Address
+                                <div class="info-tooltip-wrapper">
+                                    <i data-lucide="info" class="info-icon" style="width: 14px; height: 14px;"></i>
+                                    <span class="tooltip-text">Cannot be changed</span>
+                                </div>
+                            </span>
+                            <input type="email" id="email" class="detail-value" disabled>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Mobile Number</span>
+                            <input type="tel" id="mobile" class="detail-value" disabled>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Organization</span>
+                            <input type="text" id="organization" class="detail-value" disabled>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button type="button" id="edit-btn" class="submit-btn"
+                            style="background: var(--text-main);">Edit Profile</button>
+                        <button type="submit" id="save-btn" class="submit-btn" style="display: none;">Save
+                            Changes</button>
+                        <button type="button" id="cancel-btn" class="submit-btn"
+                            style="background: #ef4444; display: none;">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <div style="max-width: 800px; margin: 2rem auto; padding: 0 1rem; text-align: center;">
+                <button type="button" id="logout-btn" class="submit-btn"
+                    style="background: #ef4444; width: 100%; max-width: 200px;" onclick="handleLogout()">
+                    <i data-lucide="log-out" style="margin-right: 8px; width: 18px; height: 18px;"></i> Logout
+                </button>
+            </div>
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </main>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+
+
+    <script th:src="@{/js/script.js}"></script>
+    <script>
+        function handleLogout() {
+            showConfirm('Are you sure you want to logout? All unsaved session data will be cleared.', async () => {
+                localStorage.clear();
+                window.location.href = '/login';
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProfile();
+
+            // Image Upload
+            const imageInput = document.getElementById('image-upload');
+            imageInput.addEventListener('change', handleImageUpload);
+
+            // Edit Toggle
+            const editBtn = document.getElementById('edit-btn');
+            const saveBtn = document.getElementById('save-btn');
+            const cancelBtn = document.getElementById('cancel-btn');
+            const inputs = ['username', 'mobile', 'organization']; // username is now editable
+
+            editBtn.addEventListener('click', () => {
+                inputs.forEach(id => document.getElementById(id).disabled = false);
+                editBtn.style.display = 'none';
+                saveBtn.style.display = 'block';
+                cancelBtn.style.display = 'block';
+            });
+
+            cancelBtn.addEventListener('click', () => {
+                inputs.forEach(id => document.getElementById(id).disabled = true);
+                editBtn.style.display = 'block';
+                saveBtn.style.display = 'none';
+                cancelBtn.style.display = 'none';
+                loadProfile(); // Reset values
+            });
+
+            // Form Submit
+            document.getElementById('profile-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await updateProfile();
+            });
+        });
+
+        async function loadProfile() {
+            try {
+                const res = await fetch('/api/profile/me');
+                if (res.ok) {
+                    const user = await res.json();
+                    document.getElementById('username').value = user.username;
+                    document.getElementById('display-name').innerText = user.username;
+                    document.getElementById('email').value = user.email;
+                    document.getElementById('mobile').value = user.mobileNumber || '';
+                    document.getElementById('organization').value = user.organization || '';
+
+                    const roles = user.roles || [];
+                    document.getElementById('display-role').innerText = roles.map(r => r.replace('ROLE_', '')).join(', ') || 'User';
+
+                    if (user.profileImage) {
+                        document.getElementById('profile-img').src = `data:image/jpeg;base64,${user.profileImage}`;
+                        document.getElementById('profile-img').style.display = 'block';
+                        document.getElementById('profile-img').style.zIndex = '10'; // Ensure it's on top
+                        document.getElementById('profile-placeholder').style.display = 'none';
+                    } else {
+                        document.getElementById('profile-img').style.display = 'none';
+                        document.getElementById('profile-placeholder').style.display = 'flex';
+                    }
+                    if (window.lucide) lucide.createIcons();
+                }
+            } catch (error) {
+                console.error("Failed to load profile", error);
+                if (typeof showToast === 'function') showToast("Error", "Failed to load profile data", "error");
+            }
+        }
+
+        async function handleImageUpload(e) {
+            const files = e.target.files;
+            if (files && files.length > 0) {
+                const formData = new FormData();
+                formData.append('file', files[0]);
+
+                try {
+                    if (typeof showToast === 'function') showToast("Uploading...", "Please wait", "info");
+                    const res = await fetch('/api/profile/upload-image', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (res.ok) {
+                        if (typeof showToast === 'function') showToast("Success", "Profile image updated!", "success");
+                        loadProfile();
+                    } else {
+                        if (typeof showToast === 'function') showToast("Error", "Failed to upload image", "error");
+                    }
+                } catch (err) {
+                    console.error(err);
+                    if (typeof showToast === 'function') showToast("Error", "Network error", "error");
+                }
+            }
+        }
+
+        async function updateProfile() {
+            const data = {
+                username: document.getElementById('username').value,
+                mobileNumber: document.getElementById('mobile').value,
+                organization: document.getElementById('organization').value
+            };
+
+            const btn = document.getElementById('save-btn');
+            if (typeof window.setButtonLoading === 'function') window.setButtonLoading(btn);
+
+            try {
+                const res = await fetch('/api/profile/update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (res.ok) {
+                    if (typeof showToast === 'function') showToast("Success", "Profile updated successfully!", "success");
+                    // Reset UI
+                    document.getElementById('username').disabled = true;
+                    document.getElementById('mobile').disabled = true;
+                    document.getElementById('organization').disabled = true;
+                    document.getElementById('edit-btn').style.display = 'block';
+                    document.getElementById('save-btn').style.display = 'none';
+                    document.getElementById('cancel-btn').style.display = 'none';
+                } else {
+                    if (typeof showToast === 'function') showToast("Error", "Failed to update profile", "error");
+                }
+            } catch (err) {
+                console.error(err);
+                if (typeof showToast === 'function') showToast("Error", "Network error", "error");
+            } finally {
+                if (typeof window.resetButtonLoading === 'function') window.resetButtonLoading(btn);
+            }
+        }
+    </script>
+</body>
+
+</html>

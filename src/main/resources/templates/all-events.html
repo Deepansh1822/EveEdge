@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Events | EveEdge</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Desktop styles */
+        .manage-header {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .header-filter {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-right: auto;
+            margin-top: 0rem;
+        }
+
+        #category-filter {
+            min-width: 250px;
+        }
+
+        /* Mobile styles */
+        @media (max-width: 768px) {
+            .manage-header {
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                margin-bottom: 1.5rem !important;
+                gap: 1rem !important;
+            }
+
+            .header-top {
+                width: 100% !important;
+                margin-bottom: 0 !important;
+            }
+
+            .header-top h1 {
+                font-size: 1.25rem !important;
+                white-space: nowrap !important;
+            }
+
+            .header-filter {
+                width: 100% !important;
+                margin-top: 0 !important;
+            }
+
+            #category-filter {
+                width: 100% !important;
+                font-size: 0.875rem !important;
+                min-width: auto !important;
+            }
+
+            .create-btn {
+                width: 38px !important;
+                height: 38px !important;
+                padding: 0 !important;
+                gap: 0 !important;
+                flex-shrink: 0 !important;
+            }
+
+            .create-btn .btn-text {
+                display: none !important;
+            }
+
+            .create-btn i,
+            .create-btn svg {
+                width: 20px !important;
+                height: 20px !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Mobile Menu Toggle Button -->
+
+
+        <!-- Sidebar (Shared structure) -->
+        <!-- Sidebar Fragment -->
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header with Search -->
+            <div th:replace="~{fragments/header :: header}"></div>
+
+            <div class="manage-header" style="margin-bottom: 1.5rem;">
+                <div class="header-top"
+                    style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <h1>
+                        <i class="fa-solid fa-calendar-days" style="color: var(--primary);"></i>
+                        Explore Events
+                    </h1>
+                    <a href="/create-event" class="submit-btn create-btn admin-only"
+                        style="width: fit-content; padding: 0.6rem 1.25rem; margin: 0; font-size: 0.875rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none; border-radius: 12px; height: 42px;">
+                        <i class="fa-solid fa-plus"></i>
+                        <span class="btn-text">Create Event</span>
+                    </a>
+                </div>
+                <div class="header-filter" style="display: flex; gap: 1rem; align-items: center; margin-top: 1rem;">
+                    <select id="category-filter"
+                        style="padding: 0.75rem 1.5rem; border-radius: 12px; border: 1px solid var(--glass-border); background: var(--bg-card); color: var(--text-main); font-weight: 600; outline: none;">
+                        <option value="all">All Categories</option>
+                        <option th:each="cat : ${categories}" th:value="${cat.categId}" th:text="${cat.catName}">
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="event-grid" id="all-events-list">
+                <!-- Populated via script.js common logic if possible, or custom here -->
+                <div th:each="event : ${events}" class="event-card"
+                    th:attr="data-cat-id=${event.category != null ? event.category.categId : ''}">
+                    <!-- Manual Card Injection to match script.js look -->
+                    <script th:inline="javascript">
+                        /* Ensure we can use createEventCardHtml for consistency */
+                    </script>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(events)}" style="padding: 8rem 0; text-align: center;">
+                <i class="fa-solid fa-inbox"
+                    style="font-size: 4rem; opacity: 0.1; margin-bottom: 2rem; display: block;"></i>
+                <h2 style="color: var(--text-muted);">No events found</h2>
+                <p style="color: var(--text-muted);">Check back later or try a different filter.</p>
+            </div>
+            <!-- Quick Registration Modal -->
+            <div class="modal-overlay" id="register-modal">
+                <div class="modal-content" style="max-width: 450px;">
+                    <div class="modal-header">
+                        <div>
+                            <h2 class="modal-title">Quick Registration</h2>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 5px;"
+                                id="register-event-name">
+                                Event Name</p>
+                        </div>
+                        <button class="close-modal">
+                            <i data-lucide="x"></i>
+                        </button>
+                    </div>
+                    <form id="quick-register-form">
+                        <input type="hidden" id="register-event-id">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" id="reg-cust-name" placeholder="Jack Reacher" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" id="reg-cust-email" placeholder="jack@example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Mobile Number</label>
+                            <input type="tel" id="reg-cust-mobile" placeholder="+91 99999 99999" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Organization / Department</label>
+                            <input type="text" id="reg-cust-org" placeholder="e.g. Science Dept, Tech Corp" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Attendee Type</label>
+                            <select id="reg-cust-type" required>
+                                <option value="Internal">Internal (Student/Faculty)</option>
+                                <option value="External" selected>External (Guest)</option>
+                            </select>
+                        </div>
+                        <div
+                            style="margin-top: 1.5rem; padding: 1rem; background: #f8fafc; border-radius: 12px; display: flex; align-items: center; gap: 10px;">
+                            <i data-lucide="info" size="18" style="color: var(--primary);"></i>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">This event is free. No
+                                payment
+                                details are required.</p>
+                        </div>
+                        <button type="submit" class="submit-btn" style="margin-top: 1.5rem;">Confirm
+                            Registration</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Footer Fragment -->
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </main>
+    </div>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <script th:src="@{/js/script.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            refreshEventsList();
+            document.getElementById('category-filter').addEventListener('change', refreshEventsList);
+        });
+
+        async function refreshEventsList() {
+            const container = document.getElementById('all-events-list');
+            const catFilter = document.getElementById('category-filter').value;
+
+            const response = await fetch('/api/events/getall');
+            const events = await response.json();
+
+            container.innerHTML = '';
+            const filtered = events.filter(e => {
+                const matchesCat = catFilter === 'all' || (e.category && e.category.categId == catFilter);
+                return matchesCat;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div style="grid-column: 1/-1; padding: 4rem; text-align: center; color: var(--text-muted);">
+                    <p>No matches found for your filter.</p>
+                </div>`;
+                return;
+            }
+
+            filtered.forEach(event => {
+                container.innerHTML += createEventCardHtml(event);
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pending Cash Payments | EveEdge</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .pending-container {
+            width: 95%;
+            max-width: 1500px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .pending-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .pending-header h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .badge {
+            background: var(--primary-glow);
+            color: var(--primary);
+            padding: 0.2rem 0.6rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .list-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .list-header {
+            display: grid;
+            grid-template-columns: 80px 2fr 1.5fr 1fr 0.8fr 1.5fr 140px;
+            background: var(--bg-dark);
+            padding: 1rem 2rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .list-item {
+            display: grid;
+            grid-template-columns: 80px 2fr 1.5fr 1fr 0.8fr 1.5fr 140px;
+            align-items: center;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--glass-border);
+            transition: all 0.2s ease;
+        }
+
+        .list-item:last-child {
+            border-bottom: none;
+        }
+
+        .list-item:hover {
+            background: rgba(37, 99, 235, 0.02);
+        }
+
+        .booking-id {
+            font-weight: 700;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .event-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+        }
+
+        .event-title {
+            font-weight: 700;
+            color: var(--text-main);
+            font-size: 0.95rem;
+        }
+
+        .customer-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+        }
+
+        .customer-name {
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 0.9rem;
+        }
+
+        .customer-meta {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .amount {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 1rem;
+        }
+
+        .deadline-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .deadline-tag.urgent {
+            background: #fef2f2;
+            color: #ef4444;
+        }
+
+        .deadline-tag.normal {
+            background: #fffbeb;
+            color: #d97706;
+        }
+
+        .deadline-tag.safe {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+
+        .small-action-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid var(--glass-border);
+            background: white;
+            padding: 0;
+            flex-shrink: 0;
+        }
+
+        .confirm-btn {
+            color: #16a34a;
+        }
+
+        .confirm-btn:hover {
+            background: #16a34a;
+            color: white;
+            border-color: #16a34a;
+        }
+
+        .cancel-btn {
+            color: #ef4444;
+        }
+
+        .cancel-btn:hover {
+            background: #ef4444;
+            color: white;
+            border-color: #ef4444;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--bg-card);
+            border-radius: 20px;
+            border: 1.5px dashed var(--glass-border);
+        }
+
+        /* Desktop Only - Centered Grid Items */
+        @media (min-width: 1025px) {
+            .list-header {
+                justify-items: center;
+            }
+
+            .list-item {
+                justify-items: center;
+            }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 1024px) {
+            .pending-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+
+            .pending-header h1 {
+                width: 100%;
+                justify-content: space-between;
+                font-size: 1.5rem;
+            }
+
+            .pending-header .submit-btn {
+                width: 100% !important;
+                margin-top: 0.5rem;
+            }
+
+            .list-header {
+                display: none;
+            }
+
+            .list-item {
+                display: grid;
+                grid-template-columns: 1fr auto;
+                grid-template-areas:
+                    "id amount"
+                    "event event"
+                    "customer customer"
+                    "qty deadline"
+                    "actions actions";
+                gap: 0.75rem;
+                padding: 1.25rem;
+                align-items: center;
+            }
+
+            /* Map children to grid areas based on order */
+            /* Map children to grid areas and add labels */
+            .list-item>div:nth-child(1) {
+                grid-area: id;
+                font-size: 1rem;
+                color: var(--primary);
+                font-weight: 800;
+            }
+
+            /* Event Details */
+            .list-item>div:nth-child(2) {
+                grid-area: event;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .list-item>div:nth-child(2)::before {
+                content: 'Event Details';
+                display: block;
+                font-size: 0.65rem;
+                text-transform: uppercase;
+                color: #94a3b8;
+                font-weight: 800;
+                margin-bottom: 0.25rem;
+                letter-spacing: 0.05em;
+            }
+
+            /* Customer Details */
+            .list-item>div:nth-child(3) {
+                grid-area: customer;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .list-item>div:nth-child(3)::before {
+                content: 'Customer';
+                display: block;
+                font-size: 0.65rem;
+                text-transform: uppercase;
+                color: #94a3b8;
+                font-weight: 800;
+                margin-bottom: 0.25rem;
+                letter-spacing: 0.05em;
+            }
+
+            /* Total Amount */
+            .list-item>div:nth-child(4) {
+                /* amount */
+                grid-area: amount;
+                text-align: right;
+                display: block;
+                white-space: nowrap;
+            }
+
+            .list-item>div:nth-child(4)::before {
+                content: 'Total Amount';
+                display: block;
+                font-size: 0.65rem;
+                text-transform: uppercase;
+                color: #94a3b8;
+                font-weight: 800;
+                margin-bottom: 0.1rem;
+                letter-spacing: 0.05em;
+            }
+
+            /* Quantity */
+            .list-item>div:nth-child(5) {
+                /* qty is actually quantity even if class says booking-id */
+                grid-area: qty;
+            }
+
+            .list-item>div:nth-child(5)::before {
+                content: 'Qty';
+                display: block;
+                font-size: 0.65rem;
+                text-transform: uppercase;
+                color: #94a3b8;
+                font-weight: 800;
+                margin-bottom: 0.25rem;
+                letter-spacing: 0.05em;
+            }
+
+            /* Deadline */
+            .list-item>div:nth-child(6) {
+                /* deadline-container */
+                grid-area: deadline;
+                display: block;
+                text-align: right;
+            }
+
+            .list-item>div:nth-child(6)::before {
+                content: 'Payment Deadline';
+                display: block;
+                font-size: 0.65rem;
+                text-transform: uppercase;
+                color: #94a3b8;
+                font-weight: 800;
+                margin-bottom: 0.25rem;
+                letter-spacing: 0.05em;
+            }
+
+            .list-item>div:nth-child(7) {
+                grid-area: actions;
+            }
+
+            .actions {
+                display: flex;
+                gap: 0.75rem;
+                justify-content: space-between !important;
+                margin-top: 0.5rem;
+                padding-top: 1rem;
+                border-top: 1px dashed var(--glass-border);
+                width: 100%;
+            }
+
+            .small-action-btn {
+                width: 20% !important;
+                height: 42px;
+                border-radius: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .small-action-btn i,
+            .small-action-btn svg {
+                width: 20px !important;
+                height: 20px !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Mobile Menu Toggle Button -->
+
+
+        <!-- Sidebar -->
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+        <main class="main-content">
+            <div th:replace="~{fragments/header :: header}"></div>
+
+            <div class="pending-container">
+                <div class="pending-header">
+                    <h1>
+                        <i data-lucide="credit-card"></i>
+                        Pending Payments
+                        <span class="badge" th:text="${pendingPayments.size()}">0</span>
+                    </h1>
+                    <button class="submit-btn" style="width: auto; height: 38px; padding: 0 1rem; font-size: 0.85rem;"
+                        onclick="location.reload()">
+                        <i data-lucide="rotate-cw"></i>
+                        Refresh
+                    </button>
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state" th:if="${pendingPayments.isEmpty()}">
+                    <div class="empty-icon">
+                        <i data-lucide="check-circle"
+                            style="width: 64px; height: 64px; color: var(--primary); opacity: 0.2; margin-bottom: 1.5rem; display: block;"></i>
+                    </div>
+                    <h2 class="empty-title">All Clear!</h2>
+                    <p class="empty-text">No pending cash payments at the moment.</p>
+                </div>
+
+                <!-- List Content -->
+                <div class="list-card" th:unless="${pendingPayments.isEmpty()}">
+                    <!-- List Header -->
+                    <div class="list-header">
+                        <div>ID</div>
+                        <div>Event</div>
+                        <div>Customer</div>
+                        <div>Amount</div>
+                        <div>Qty</div>
+                        <div>Deadline</div>
+                        <div style="text-align: right;">Actions</div>
+                    </div>
+
+                    <!-- List Items -->
+                    <div th:each="booking : ${pendingPayments}" class="list-item">
+                        <div class="booking-id" th:text="'#' + ${booking.bookingId}">#12345</div>
+
+                        <div class="event-info">
+                            <div class="event-title" th:text="${booking.event.title}">Tech Conference 2026</div>
+                            <div class="customer-meta"
+                                th:text="${#temporals.format(booking.bookingDate, 'MMM dd, HH:mm')}">Jan 29, 18:00</div>
+                        </div>
+
+                        <div class="customer-info">
+                            <div class="customer-name" th:text="${booking.customerName}">John Doe</div>
+                            <div class="customer-meta" th:text="${booking.mobileNumber}">+91 9999999999</div>
+                        </div>
+
+
+                        <div class="amount">₹<span
+                                th:text="${#numbers.formatDecimal(booking.totalAmount, 0, 2)}">1500.00</span></div>
+
+
+                        <div class="booking-id" th:text="${booking.quantity}">2</div>
+
+                        <div class="deadline-container">
+                            <div class="deadline-tag"
+                                th:classappend="${#temporals.format(booking.paymentDeadline, 'yyyy-MM-dd HH:mm') < #temporals.format(#temporals.createNow(), 'yyyy-MM-dd HH:mm') ? 'urgent' : (#temporals.format(booking.paymentDeadline, 'yyyy-MM-dd HH:mm') < #temporals.format(#temporals.createNow().plusHours(6), 'yyyy-MM-dd HH:mm') ? 'normal' : 'safe')}">
+                                <i data-lucide="clock"></i>
+                                <span th:text="${#temporals.format(booking.paymentDeadline, 'MMM dd, HH:mm')}">Jan 31,
+                                    18:00</span>
+                            </div>
+                        </div>
+
+                        <div class="actions">
+                            <button class="small-action-btn confirm-btn" title="Confirm Payment"
+                                th:onclick="'confirmPayment(' + ${booking.bookingId} + ')'">
+                                <i data-lucide="check"></i>
+                            </button>
+                            <button class="small-action-btn cancel-btn" title="Cancel Booking"
+                                th:onclick="'cancelBooking(' + ${booking.bookingId} + ')'">
+                                <i data-lucide="trash-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Footer Fragment -->
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </main>
+    </div>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <script th:src="@{/js/script.js}"></script>
+    <script>
+        // Admin check
+        if (!isAdmin()) {
+            window.location.href = '/';
+        }
+
+        function confirmPayment(bookingId) {
+            if (!confirm('Confirm that cash payment has been received for Booking #' + bookingId + '?')) {
+                return;
+            }
+
+            fetchWithAuth(`/admin/api/confirm-payment/${bookingId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'adminName=Admin'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('Payment Confirmed', data.message, 'success');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showToast('Error', data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    showToast('Error', 'Failed to confirm payment', 'error');
+                    console.error('Error:', error);
+                });
+        }
+
+        function cancelBooking(bookingId) {
+            const reason = prompt('Enter reason for cancellation (optional):');
+            if (reason === null) return; // User clicked cancel
+
+            fetchWithAuth(`/admin/api/cancel-booking/${bookingId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: reason ? `reason=${encodeURIComponent(reason)}` : ''
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('Booking Cancelled', data.message, 'success');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showToast('Error', data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    showToast('Error', 'Failed to cancel booking', 'error');
+                    console.error('Error:', error);
+                });
+        }
+
+        // Initialize icons
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+    </script>
+</body>
+
+</html>

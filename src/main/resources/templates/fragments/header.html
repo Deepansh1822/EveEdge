@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+    <header class="header" th:fragment="header">
+        <div class="search-container">
+            <i data-lucide="search" class="search-icon"></i>
+            <input type="text" id="event-search" placeholder="Search for events, categories, etc...">
+
+            <a href="/profile" class="user-profile-compact">
+                <img id="header-profile-img" src="" alt="Profile" style="display: none;">
+                <i id="header-profile-icon" data-lucide="user-circle" style="width: 24px; height: 24px;"></i>
+            </a>
+
+            <div id="search-results-dropdown" class="search-dropdown"></div>
+        </div>
+    </header>
+</body>
+
+</html>

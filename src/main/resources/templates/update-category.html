@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Category | EveEdge</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .form-page-container {
+            width: 95%;
+            max-width: 1500px;
+            margin: 2rem auto;
+            padding: 3rem;
+            background: var(--bg-card);
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .form-header {
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .form-header svg,
+        .form-header [data-lucide] {
+            width: 36px !important;
+            height: 36px !important;
+            color: var(--primary);
+            stroke-width: 2.5px;
+        }
+
+        .form-header h1 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .color-picker-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.5rem;
+            background: var(--bg-dark);
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+        }
+
+        input[type="color"] {
+            width: 50px;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: none;
+        }
+
+        .preview-image-wrapper {
+            margin-bottom: 1.5rem;
+            padding: 1.25rem;
+            background: var(--bg-dark);
+            border-radius: 20px;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px dashed var(--glass-border);
+            width: fit-content;
+        }
+
+        .preview-image {
+            width: 400px;
+            height: 220px;
+            border-radius: 16px;
+            object-fit: contain;
+            background: var(--bg-card);
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--glass-border);
+            image-rendering: -webkit-optimize-contrast;
+        }
+
+        .btn-icon {
+            margin-right: 0.5rem;
+            width: 18px !important;
+            height: 18px !important;
+        }
+
+        @media (max-width: 768px) {
+            .form-page-container {
+                padding: 1.5rem !important;
+                margin: 1rem auto !important;
+                border-radius: 16px !important;
+            }
+
+            .form-header {
+                gap: 0.75rem !important;
+                margin-bottom: 1.5rem !important;
+            }
+
+            .form-header h1 {
+                font-size: 1.5rem !important;
+            }
+
+            .form-header [data-lucide] {
+                width: 28px !important;
+                height: 28px !important;
+            }
+
+            .form-actions {
+                flex-direction: column !important;
+                gap: 0.75rem !important;
+            }
+
+            .form-actions button {
+                width: 100% !important;
+                height: 50px !important;
+                font-size: 0.95rem !important;
+            }
+
+            .preview-image-wrapper {
+                width: 100% !important;
+                padding: 0.75rem !important;
+            }
+
+            .preview-image {
+                width: 100% !important;
+                height: auto !important;
+                max-height: 180px !important;
+                object-fit: contain !important;
+            }
+
+            .header {
+                display: none !important;
+            }
+
+            .submit-btn i,
+            .submit-btn svg {
+                width: 18px !important;
+                height: 18px !important;
+                display: inline-flex !important;
+                margin-right: 0.5rem !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar Reused -->
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+        <main class="main-content">
+            <div th:replace="~{fragments/header :: header}"></div>
+
+            <div class="form-page-container">
+                <div class="form-header">
+                    <i data-lucide="pencil"></i>
+                    <h1>Update Category</h1>
+                </div>
+
+                <form id="update-category-form" th:if="${category}">
+                    <input type="hidden" id="cat-id" th:value="${category.categId}">
+
+                    <div class="form-group">
+                        <label>Category Name</label>
+                        <input type="text" id="cat-name-input" name="catName" th:value="${category.catName}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="cat-desc-input" name="description" rows="4"
+                            th:text="${category.description}"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Category Theme Color</label>
+                        <div class="color-picker-container">
+                            <input type="color" id="cat-color-input" name="catColor"
+                                th:value="${category.catColor ?: '#4f46e5'}">
+                            <span id="color-hex"
+                                style="color: var(--text-muted); font-size: 0.9rem; font-family: monospace;"
+                                th:text="${category.catColor ?: '#4f46e5'}">#4f46e5</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Category Icon (Image)</label>
+                        <div th:if="${category.catIconBase64}" class="preview-image-wrapper">
+                            <img th:src="'data:image/png;base64,' + ${category.catIconBase64}" id="image-preview"
+                                class="preview-image">
+                            <p style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">Current Category
+                                Icon</p>
+                        </div>
+                        <input type="file" id="cat-icon-input" name="catIcon" accept="image/*">
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">Recommended: Square
+                            PNG with transparent background. Leave empty to keep current icon.</p>
+                    </div>
+
+                    <div class="form-actions"
+                        style="margin-top: 3rem; display: flex; gap: 1rem; justify-content: flex-start;">
+                        <button type="submit" class="submit-btn"
+                            style="width: 200px; height: 48px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; margin-top: 0; gap: 0.5rem;">
+                            <i data-lucide="pencil"></i>
+                            Update Category
+                        </button>
+                        <button type="button" class="btn-secondary" onclick="location.href='/manage-categories'"
+                            style="width: 200px; height: 48px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 0.875rem; border-radius: 12px; border: 1px solid #ef4444; background: rgba(239, 68, 68, 0.1); color: #ef4444; cursor: pointer; transition: all 0.2s ease; text-align: center;"
+                            onmouseover="this.style.background='#ef4444'; this.style.color='white'"
+                            onmouseout="this.style.background='rgba(239, 68, 68, 0.1)'; this.style.color='#ef4444'">Cancel</button>
+                    </div>
+                </form>
+
+                <div th:unless="${category}" style="text-align: center; padding: 4rem;">
+                    <p>Category not found.</p>
+                    <button class="submit-btn" onclick="location.href='/manage-categories'">Back to List</button>
+                </div>
+            </div>
+            <!-- Footer Fragment -->
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </main>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script th:src="@{/js/script.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const colorIn = document.getElementById('cat-color-input');
+            const colorHex = document.getElementById('color-hex');
+            if (colorIn) {
+                colorIn.addEventListener('input', () => colorHex.innerText = colorIn.value);
+            }
+
+            const form = document.getElementById('update-category-form');
+            if (form) {
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const id = document.getElementById('cat-id').value;
+                    const iconFile = document.getElementById('cat-icon-input').files[0];
+                    let iconBase64 = null;
+                    if (iconFile) {
+                        iconBase64 = await resizeImage(iconFile, 512, 512); // High resolution for sharp display
+                    }
+
+                    const data = {
+                        catName: document.getElementById('cat-name-input').value,
+                        description: document.getElementById('cat-desc-input').value,
+                        catColor: document.getElementById('cat-color-input').value,
+                        catIcon: iconBase64
+                    };
+
+                    const submitBtn = e.target.querySelector('button[type="submit"]');
+                    const originalContent = submitBtn.innerHTML;
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i data-lucide="loader-2" class="animate-spin"></i> <span>Updating...</span>';
+                    refreshIcons();
+
+                    fetchWithAuth(`/api/categories/update/${id}`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(data)
+                    })
+                        .then(res => {
+                            if (res.ok) {
+                                showToast("Category Updated", "The category details have been updated successfully.", "success");
+                                setTimeout(() => location.href = "/manage-categories", 1500);
+                            } else {
+                                showToast("Action Failed", "Failed to update category details. Please try again.", "error");
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = originalContent;
+                                refreshIcons();
+                            }
+                        });
+                });
+
+                // Live Image Preview Fix
+                const iconInput = document.getElementById('cat-icon-input');
+                const imagePreview = document.getElementById('image-preview');
+
+                iconInput.addEventListener('change', function () {
+                    if (this.files && this.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            if (imagePreview) {
+                                imagePreview.src = e.target.result;
+                            } else {
+                                // Create preview if it doesn't exist
+                                const wrapper = document.createElement('div');
+                                wrapper.className = 'preview-image-wrapper';
+                                wrapper.innerHTML = `<img src="${e.target.result}" id="image-preview" class="preview-image"><p style="font-size: 0.75rem; color: var(--text-muted); font-weight: 500;">New Icon Preview</p>`;
+                                iconInput.parentNode.insertBefore(wrapper, iconInput);
+                            }
+                        };
+                        reader.readAsDataURL(this.files[0]);
+                    }
+                });
+            }
+            lucide.createIcons();
+        });
+    </script>
+</body>
+
+</html>
