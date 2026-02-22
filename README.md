@@ -8,6 +8,7 @@
 
   [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.1-brightgreen.svg)](https://spring.io/projects/spring-boot)
   [![Java](https://img.shields.io/badge/Java-17-orange.svg)](https://www.oracle.com/java/)
+  [![MySQL](https://img.shields.io/badge/MySQL-8.0-blue.svg)](https://www.mysql.com/)
 </div>
 
 ---
@@ -129,11 +130,31 @@ spring.mail.password=YOUR_APP_PASSWORD
 
 ## 📸 Screenshots
 
-| Dashboard | Event Selection | Category Selection |
-|---|---|---|
-| ![Dashboard Placeholder](assets/EveEdge-Dashboard.png) | ![Events Placeholder](assets/EveEdge-Events.png) | ![Payment Placeholder](assets/EveEdge-Categories.png) |
-| Event Details | Tickets Page | Tickets Booking Page |
-| ![Dashboard Placeholder](assets/EveEdge-EventDetails.png) | ![Events Placeholder](assets/EveEdge-Tickets.png) | ![Events Placeholder](assets/EveEdge-Payment.png) |
+<div align="center">
+  <table>
+    <tr>
+      <td align="center"><b>Dashboard</b></td>
+      <td align="center"><b>Event Selection</b></td>
+      <td align="center"><b>Category Selection</b></td>
+    </tr>
+    <tr>
+      <td><img src="assets/EveEdge-Dashboard.png" width="280"></td>
+      <td><img src="assets/EveEdge-Events.png" width="280"></td>
+      <td><img src="assets/EveEdge-Categories.png" width="280"></td>
+    </tr>
+    <tr>
+      <td align="center"><b>Event Details</b></td>
+      <td align="center"><b>Tickets Page</b></td>
+      <td align="center"><b>Tickets Booking Page</b></td>
+    </tr>
+    <tr>
+      <td><img src="assets/EveEdge-EventDetails.png" width="280"></td>
+      <td><img src="assets/EveEdge-Tickets.png" width="280"></td>
+      <td><img src="assets/EveEdge-Payment.png" width="280"></td>
+    </tr>
+  </table>
+</div>
+
 
 ---
 
